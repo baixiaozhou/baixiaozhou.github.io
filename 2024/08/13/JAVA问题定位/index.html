@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>JAVA问题定位 | 周小白的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="一、JAVA 相关命令1.jpsjps - Lists the instrumented Java Virtual Machines (JVMs) on the target system. This command is experimental and unsupported. 相关参数 123456789101112131415OPTIONS       The jps command su">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA问题定位">
+<meta property="og:url" content="http://example.com/2024/08/13/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/index.html">
+<meta property="og:site_name" content="周小白的个人博客">
+<meta property="og:description" content="一、JAVA 相关命令1.jpsjps - Lists the instrumented Java Virtual Machines (JVMs) on the target system. This command is experimental and unsupported. 相关参数 123456789101112131415OPTIONS       The jps command su">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/gc.png">
+<meta property="og:image" content="http://example.com/images/vmstat.png">
+<meta property="article:published_time" content="2024-08-13T08:42:39.872Z">
+<meta property="article:modified_time" content="2024-08-13T09:37:52.110Z">
+<meta property="article:author" content="baixiaozhou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/gc.png">
+  
+    <link rel="alternate" href="/atom.xml" title="周小白的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">周小白的个人博客</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-JAVA问题定位" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/08/13/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/" class="article-date">
+  <time class="dt-published" datetime="2024-08-13T08:42:39.872Z" itemprop="datePublished">2024-08-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      JAVA问题定位
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="一、JAVA-相关命令"><a href="#一、JAVA-相关命令" class="headerlink" title="一、JAVA 相关命令"></a>一、JAVA 相关命令</h1><h2 id="1-jps"><a href="#1-jps" class="headerlink" title="1.jps"></a>1.jps</h2><p>jps - Lists the instrumented Java Virtual Machines (JVMs) on the target system. This command is experimental and unsupported.</p>
+<p>相关参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS</span><br><span class="line">       The jps command supports a number of options that modify the output of the command. These options are subject to change or removal in the future.</span><br><span class="line">       -q</span><br><span class="line">              Suppresses the output of the class name, JAR file name, and arguments passed to the main method, producing only a list of local JVM identifiers.</span><br><span class="line">       -m</span><br><span class="line">              Displays the arguments passed to the main method. The output may be null for embedded JVMs.</span><br><span class="line">       -l</span><br><span class="line">              Displays the full package name for the application&#x27;s main class or the full path name to the application&#x27;s JAR file.</span><br><span class="line">       -v</span><br><span class="line">              Displays the arguments passed to the JVM.</span><br><span class="line">       -V</span><br><span class="line">              Suppresses the output of the class name, JAR file name, and arguments passed to the main method, producing only a list of local JVM identifiers.</span><br><span class="line">       -Joption</span><br><span class="line">              Passes option to the JVM, where option is one of the options described on the reference page for the Java application launcher. For example, -J-Xms48m sets the</span><br><span class="line">              startup memory to 48 MB. See java(1).</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-jinfo"><a href="#2-jinfo" class="headerlink" title="2.jinfo"></a>2.jinfo</h2><p>jinfo（Java Virtual Machine Configuration Information）是JDK提供的一个可以实时查看Java虚拟机各种配置参数和系统属性的命令行工具。使用jps命令的-v参数可以查看Java虚拟机启动时显式指定的配置参数，如果想查看没有显式指定的配置参数就可以使用jinfo命令进行查看。另外，jinfo命令还可以查询Java虚拟机进程的System.getProperties()的内容。</p>
+<p>以tomcat进程为例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">Attaching to process ID 2045, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.242-b08</span><br><span class="line">Java System Properties:</span><br><span class="line"></span><br><span class="line">java.vendor = Huawei Technologies Co., Ltd</span><br><span class="line">sun.java.launcher = SUN_STANDARD</span><br><span class="line">catalina.base = /usr/share/tomcat</span><br><span class="line">sun.management.compiler = HotSpot 64-Bit Tiered Compilers</span><br><span class="line">sun.nio.ch.bugLevel = </span><br><span class="line">catalina.useNaming = true</span><br><span class="line">jnidispatch.path = /var/cache/tomcat/temp/jna--903012287/jna4240128671455089550.tmp</span><br><span class="line">os.name = Linux</span><br><span class="line">sun.boot.class.path = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/resources.jar:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/rt.jar:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/jsse.jar:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/jce.jar:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/charsets.jar:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/jfr.jar:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/classes</span><br><span class="line">java.vm.specification.vendor = Oracle Corporation</span><br><span class="line">java.runtime.version = 1.8.0_242-b08</span><br><span class="line">jna.loaded = true</span><br><span class="line">user.name = xxx</span><br><span class="line">tomcat.util.scan.StandardJarScanFilter.jarsToScan = taglibs-standard-impl*.jar</span><br><span class="line">shared.loader = </span><br><span class="line">tomcat.util.buf.StringCache.byte.enabled = true</span><br><span class="line">user.language = en</span><br><span class="line">java.naming.factory.initial = org.apache.naming.java.javaURLContextFactory</span><br><span class="line">sun.boot.library.path = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/amd64</span><br><span class="line">java.version = 1.8.0_242</span><br><span class="line">java.util.logging.manager = org.apache.juli.ClassLoaderLogManager</span><br><span class="line">user.timezone = Asia/Shanghai</span><br><span class="line">sun.arch.data.model = 64</span><br><span class="line">java.util.concurrent.ForkJoinPool.common.threadFactory = org.apache.catalina.startup.SafeForkJoinWorkerThreadFactory</span><br><span class="line">java.endorsed.dirs = </span><br><span class="line">sun.cpu.isalist = </span><br><span class="line">sun.jnu.encoding = UTF-8</span><br><span class="line">file.encoding.pkg = sun.io</span><br><span class="line">package.access = sun.,org.apache.catalina.,org.apache.coyote.,org.apache.jasper.,org.apache.tomcat.</span><br><span class="line">file.separator = /</span><br><span class="line">java.specification.name = Java Platform API Specification</span><br><span class="line">java.class.version = 52.0</span><br><span class="line">user.country = US</span><br><span class="line">java.home = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre</span><br><span class="line">java.vm.info = mixed mode</span><br><span class="line">os.version = 4.19.90-24.4.v2101.ky10.x86_64</span><br><span class="line">sun.font.fontmanager = sun.awt.X11FontManager</span><br><span class="line">path.separator = :</span><br><span class="line">java.vm.version = 25.242-b08</span><br><span class="line">jboss.i18n.generate-proxies = true</span><br><span class="line">java.awt.printerjob = sun.print.PSPrinterJob</span><br><span class="line">sun.io.unicode.encoding = UnicodeLittle</span><br><span class="line">awt.toolkit = sun.awt.X11.XToolkit</span><br><span class="line">package.definition = sun.,java.,org.apache.catalina.,org.apache.coyote.,org.apache.jasper.,org.apache.naming.,org.apache.tomcat.</span><br><span class="line">java.naming.factory.url.pkgs = org.apache.naming</span><br><span class="line">mail.mime.splitlongparameters = false</span><br><span class="line">java.security.egd = file:/dev/./urandom</span><br><span class="line">user.home = /home/shterm</span><br><span class="line">java.specification.vendor = Oracle Corporation</span><br><span class="line">tomcat.util.scan.StandardJarScanFilter.jarsToSkip = activ*.jar,amqp-client.jar,annotations-api.jar,ant-junit*.jar,ant-launcher.jar,ant.jar,antlr.jar,aopalliance.jar,asm-*.jar,aspectj*.jar,bcp*.jar,bootstrap.jar,catalina-ant.jar,catalina-ha.jar,catalina-jmx-remote.jar,catalina-storeconfig.jar,catalina-tribes.jar,catalina-ws.jar,catalina.jar,cglib-*.jar,classmate.jar,cobertura-*.jar,commons-*.jar,compress-lzf.jar,curator-*.jar,db2-jdbc.jar,dom4j-*.jar,easymock-*.jar,ecj-*.jar,el-api.jar,elasticsearch.jar,geronimo-spec-jaxrpc*.jar,groovy-all.jar,guava.jar,h2*.jar,hamcrest-*.jar,hibernate*.jar,hppc.jar,http*.jar,icu4j-*.jar,itext*.jar,jackson-*.jar,jandex.jar,jasper-el.jar,jasper.jar,jasperreports*.jar,jaspic-api.jar,javamail.jar,javassist.jar,jaxb-*.jar,jaxen*.jar,jboss*.jar,jc*.jar,jdom-*.jar,jedis.jar,jetty-*.jar,jfreechart.jar,jgit.jar,jline.jar,jmx-tools.jar,jmx.jar,jna.jar,joda-time.jar,jr-*.jar,jsch.jar,json*.jar,jsoup.jar,jsp-api.jar,jsr166e.jar,jstl.jar,jta*.jar,junit-*.jar,junit.jar,liquibase-*.jar,log4j*.jar,lucene*.jar,mail*.jar,mariadb-jdbc.jar,mssql-jdbc.jar,mybatis.jar,netty.jar,nmap4j.jar,objenesis*.jar,olap4j.jar,opc*.jar,oracle-jdbc.jar,oraclepki.jar,oro-*.jar,poi*.jar,postgresql-jdbc.jar,quartz.jar,servlet-api-*.jar,servlet-api.jar,slf4j*.jar,snakeyaml.jar,snmp4j.jar,spring*.jar,sshd-core.jar,taglibs-standard-spec-*.jar,tagsoup-*.jar,t-digest.jar,tomcat-api.jar,tomcat-coyote.jar,tomcat-dbcp.jar,tomcat-i18n-*.jar,tomcat-jdbc.jar,tomcat-jni.jar,tomcat-juli-adapters.jar,tomcat-juli.jar,tomcat-util-scan.jar,tomcat-util.jar,tomcat-websocket.jar,tools.jar,validation-api.jar,velocypack.jar,websocket-api.jar,wl*.jar,wsdl4j*.jar,xercesImpl.jar,xml-apis.jar,xmlbeans.jar,xmlParserAPIs-*.jar,xmlParserAPIs.jar,xom-*.jar,xz.jar,zip4j.jar,zookeeper.jar</span><br><span class="line">java.library.path = /usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib</span><br><span class="line">java.vendor.url = http://jdk.rnd.huawei.com/</span><br><span class="line">java.vm.vendor = Huawei Technologies Co., Ltd</span><br><span class="line">common.loader = &quot;$&#123;catalina.base&#125;/lib&quot;,&quot;$&#123;catalina.base&#125;/lib/*.jar&quot;,&quot;$&#123;catalina.home&#125;/lib&quot;,&quot;$&#123;catalina.home&#125;/lib/*.jar&quot;</span><br><span class="line">java.runtime.name = OpenJDK Runtime Environment</span><br><span class="line">sun.java.command = org.apache.catalina.startup.Bootstrap start</span><br><span class="line">java.class.path = /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar:/usr/lib/java/commons-daemon.jar</span><br><span class="line">java.vm.specification.name = Java Virtual Machine Specification</span><br><span class="line">java.vm.specification.version = 1.8</span><br><span class="line">catalina.home = /usr/share/tomcat</span><br><span class="line">sun.cpu.endian = little</span><br><span class="line">sun.os.patch.level = unknown</span><br><span class="line">java.awt.headless = true</span><br><span class="line">java.io.tmpdir = /var/cache/tomcat/temp</span><br><span class="line">java.vendor.url.bug = http://jdk.rnd.huawei.com/</span><br><span class="line">server.loader = </span><br><span class="line">java.rmi.server.hostname = 127.0.0.1</span><br><span class="line">jna.platform.library.path = /usr/lib64:/lib64:/usr/lib:/lib:/usr/lib64/tracker-miners-2.0:/usr/lib64/tracker-2.0:/usr/lib64/dyninst:/usr/libexec/sudo:/usr/lib64/sssd:/usr/pgsql-9.6/lib:/usr/lib64/perl5/CORE:/usr/lib64/opencryptoki:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/amd64/jli:/usr/lib64/bind9-export</span><br><span class="line">os.arch = amd64</span><br><span class="line">java.awt.graphicsenv = sun.awt.X11GraphicsEnvironment</span><br><span class="line">java.ext.dirs = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.242.b08-1.h5.ky10.x86_64/jre/lib/ext:/usr/java/packages/lib/ext</span><br><span class="line">user.dir = /usr/share/tomcat</span><br><span class="line">line.separator = </span><br><span class="line"></span><br><span class="line">java.vm.name = OpenJDK 64-Bit Server VM</span><br><span class="line">log4j.configurationFile = /etc/tomcat/log4j2.xml</span><br><span class="line">file.encoding = UTF-8</span><br><span class="line">com.sun.jndi.ldap.object.disableEndpointIdentification = </span><br><span class="line">java.specification.version = 1.8</span><br><span class="line"></span><br><span class="line">VM Flags:</span><br><span class="line">Non-default VM flags: -XX:CICompilerCount=4 -XX:GCLogFileSize=20971520 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=null -XX:InitialHeapSize=243269632 -XX:MaxHeapSize=1610612736 -XX:MaxNewSize=536870912 -XX:MinHeapDeltaBytes=524288 -XX:NewSize=80740352 -XX:NumberOfGCLogFiles=15 -XX:OldSize=162529280 -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseGCLogFileRotation -XX:+UseParallelGC </span><br><span class="line">Command line:  -Xmx1536m -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/log/tomcat -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=15 -XX:GCLogFileSize=20m -XX:+PrintGCDateStamps -XX:+PrintGCDetails -Xloggc:/var/log/tomcat/tomcat-gc-%t.log -Dcom.sun.jndi.ldap.object.disableEndpointIdentification -Dcatalina.base=/usr/share/tomcat -Dcatalina.home=/usr/share/tomcat -Djava.endorsed.dirs= -Djava.io.tmpdir=/var/cache/tomcat/temp -Dlog4j.configurationFile=/etc/tomcat/log4j2.xml -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-jstat"><a href="#3-jstat" class="headerlink" title="3.jstat"></a>3.jstat</h2><p>命令参数说明：</p>
+<ul>
+<li>generalOptions：通用选项，如果指定一个通用选项，就不能指定任何其他选项或参数。它包括如下两个选项：</li>
+<li>-help：显示帮助信息。</li>
+<li>-options：显示outputOptions参数的列表。</li>
+<li>outputOptions：输出选项，指定显示某一种Java虚拟机信息。</li>
+<li>-t：把时间戳列显示为输出的第一列。这个时间戳是从Java虚拟机的开始运行到现在的秒数。</li>
+<li>-h n：每显示n行显示一次表头，其中n为正整数。默认值为 0，即仅在第一行数据显示一次表头。</li>
+<li>vmid：虚拟机唯一ID（LVMID，Local Virtual Machine Identifier），如果查看本机就是Java进程的进程ID。</li>
+<li>interval：显示信息的时间间隔，单位默认毫秒。也可以指定秒为单位，比如：1s。如果指定了该参数，jstat命令将每隔这段时间显示一次统计信息。</li>
+<li>count：显示数据的次数，默认值是无穷大，这将导致jstat命令一直显示统计信息，直到目标JVM终止或jstat命令终止。<br>输出选项<br>如果不指定通用选项（generalOptions），则可以指定输出选项（outputOptions）。输出选项决定jstat命令显示的内容和格式，具体如下：</li>
+<li>-class：显示类加载、卸载数量、总空间和装载耗时的统计信息。</li>
+<li>-compiler：显示即时编译的方法、耗时等信息。</li>
+<li>-gc：显示堆各个区域内存使用和垃圾回收的统计信息。</li>
+<li>-gccapacity：显示堆各个区域的容量及其对应的空间的统计信息。</li>
+<li>-gcutil：显示有关垃圾收集统计信息的摘要。</li>
+<li>-gccause：显示关于垃圾收集统计信息的摘要(与-gcutil相同)，以及最近和当前垃圾回收的原因。</li>
+<li>-gcnew：显示新生代的垃圾回收统计信息。</li>
+<li>-gcnewcapacity：显示新生代的大小及其对应的空间的统计信息。</li>
+<li>-gcold: 显示老年代和元空间的垃圾回收统计信息。</li>
+<li>-gcoldcapacity：显示老年代的大小统计信息。</li>
+<li>-gcmetacapacity：显示元空间的大小的统计信息。</li>
+<li>-printcompilation：显示即时编译方法的统计信息。</li>
+</ul>
+<h1 id="二、线程堆栈"><a href="#二、线程堆栈" class="headerlink" title="二、线程堆栈"></a>二、线程堆栈</h1><h2 id="1-输出"><a href="#1-输出" class="headerlink" title="1.输出"></a>1.输出</h2><p>Java虚拟机提供了线程转储(Thread dump)的后门，通过这个后门，可以将线程堆栈打印出来。这个后门就是通过向Java进程发送一个QUIT信号，Java虚拟机收到该信号之后，将系统当前的JAVA线程调用堆栈打印出来。</p>
+<p>打印方法：</p>
+<ul>
+<li>jstack -l pid &gt; xxx.txt 需要注意的是，linux系统中往往会用不同的用户去执行不同的程序，此时可能需要通过sudu -u xxx jstack的形式</li>
+<li>kill -3<br><em><strong>同时请确保Java命令行中没有DISABLE_JAVADUMP运行选项</strong></em></li>
+</ul>
+<h2 id="2-线程分析"><a href="#2-线程分析" class="headerlink" title="2.线程分析"></a>2.线程分析</h2><p>通过输出堆栈进行分析 <code>jstack -l $(jps | grep xxx | awk &#39;&#123;print $1&#125;&#39;)</code> &gt; &#x2F;tmp&#x2F;xxx.jstack</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;SYS_STATUS_CHECKER&quot;</span> #<span class="number">14</span> daemon prio=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0x00007f5e047bf000</span> nid=<span class="number">0xe15</span> waiting on condition [<span class="number">0x00007f5dd43d1000</span>]</span><br><span class="line">    java.lang.Thread.State: TIMED_WAITING (sleeping)</span><br><span class="line">        at java.lang.Thread.sleep(Native Method)</span><br><span class="line">ru        at com.xxx.xxx.SystemStatusChecker.run(SystemStatusChecker.java:xx)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">748</span>)        </span><br><span class="line">    Locked ownable synchronizers:</span><br><span class="line">        - None</span><br><span class="line">                </span><br><span class="line"><span class="string">&quot;RMI Reaper&quot;</span> #<span class="number">39</span> prio=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0x00007f5e04e4c800</span> nid=<span class="number">0xf0b</span> <span class="keyword">in</span> Object.wait() [<span class="number">0x00007f5dae2c4000</span>]</span><br><span class="line">    java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">        at java.lang.Object.wait(Native Method)</span><br><span class="line">        - waiting on &lt;<span class="number">0x00000000c0c88d20</span>&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">        at java.lang.ref.ReferenceQueue.<span class="built_in">remove</span>(ReferenceQueue.java:<span class="number">144</span>)</span><br><span class="line">        - locked &lt;<span class="number">0x00000000c0c88d20</span>&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">        at java.lang.ref.ReferenceQueue.<span class="built_in">remove</span>(ReferenceQueue.java:<span class="number">165</span>)</span><br><span class="line">        at sun.rmi.transport.ObjectTable$Reaper.run(ObjectTable.java:<span class="number">351</span>)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:<span class="number">748</span>)</span><br><span class="line">    Locked ownable synchronizers:</span><br><span class="line">        - None</span><br><span class="line">        </span><br><span class="line"><span class="string">&quot;main&quot;</span> #<span class="number">1</span> prio=<span class="number">5</span> os_prio=<span class="number">0</span> tid=<span class="number">0x00007f5e0400a000</span> nid=<span class="number">0xdcb</span> runnable [<span class="number">0x00007f5e0b393000</span>]</span><br><span class="line">    java.lang.Thread.State: RUNNABLE</span><br><span class="line">        at java.net.PlainSocketImpl.socketAccept(Native Method)</span><br><span class="line">        at java.net.AbstractPlainSocketImpl.accept(AbstractPlainSocketImpl.java:<span class="number">409</span>)</span><br><span class="line">        at java.net.ServerSocket.implAccept(ServerSocket.java:<span class="number">545</span>)</span><br><span class="line">        at java.net.ServerSocket.accept(ServerSocket.java:<span class="number">513</span>)</span><br><span class="line">        at com.xxx.common.xxx.await(CommonMain.java:<span class="number">244</span>)</span><br><span class="line">        at com.xxx.common.xxx.startup(CommonMain.java:<span class="number">207</span>)</span><br><span class="line">        at com.xxx.common.xxx.main(CommonMain.java:<span class="number">147</span>)</span><br><span class="line">    Locked ownable synchronizers:</span><br><span class="line">        - None</span><br></pre></td></tr></table></figure>
+<p>在RMI线程中可以看到 “ - locked &lt;0x00000000c0c88d20&gt; (a java.lang.ref.ReferenceQueue$Lock)” 表示该线程已经使用了ID为”0x00000000c0c88d2”的锁，锁的ID由系统自动产生</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&quot;main&quot;  prio=5     os_prio=0          tid=0x00007f5e0400a000 nid=0xdcb      runnable [0x00007f5e0b393000]</span><br><span class="line">|       |          |                  |                      |              |         |</span><br><span class="line">线程名称 线程优先级   操作系统级别的优先级   线程id                 对应的本地线程ID  状态      线程占用内存地址</span><br></pre></td></tr></table></figure>
+
+<p>其中”线程对应的本地线程id号”所指的”本地线程”是指该Java线程所对应的虚拟机中的本地线程。我们知道Java是解析型语言，执行的实体是Java虚拟机，因此Java语言中的线程是 依附于Java虚拟机中的本地线程来运行的，实际上是本地线程在执行Java线程代码。</p>
+<p>Java代码 中创建一个thread，虚拟机在运行期就会创建一个对应的本地线程，而这个本地线程才是真正的线程实体。为了更加深入得理解本地线程和Java线程的关系，在Unix&#x2F;Linux下，我们可以通 如下方式把Java虚拟机的本地线程打印出来：</p>
+<ul>
+<li>使用ps -ef | grep java 获得Java进程ID。</li>
+<li>使用pstack <java pid>获得Java虚拟机的本地线程的堆栈<br>其中本地线程各项含义如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Thread 56 (Thread 0x7f5e0b394700 (LWP 3531))</span><br><span class="line">|                 |                 |</span><br><span class="line">|                 |                 +----本地线程id(另一种表示,LWP-light weight process)</span><br><span class="line">|                 +-------------------本地线程id</span><br><span class="line">+------------------------------线程名称</span><br></pre></td></tr></table></figure>
+而通过jstack输出的main本地线程ID为0xdcb，其10进制正好为3531。</li>
+</ul>
+<p>“runnable”表示当前线程处于运行状态。这个runnable状态是从虚拟机的角度来看的, 表示这个线程正在运行</p>
+<p><strong>⚠️ NOTE:</strong> 但是处于Runnable状态的线程不一定真的消耗CPU. 处于Runnable的线程只能说明该线程没有阻塞在java的wait或者sleep方法上，同时也没等待在锁上面。但是如果该线程调用了本地方法，而本地方法处于等待状态，这个时候虚拟机是不知道本地代码中发生 了什么（但操作系统是知道的，pstack就是操作提供的一个命令，它知道当前线程正在执行的本地代码上下文），此时尽管当前线程实际上也是阻塞的状态，但实际上显示出来的还是runnable状态， 这种情况下是不消耗CPU的</p>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 处于waittig和blocked状态的线程都不会消耗CPU </span><br><span class="line">2. 线程频繁地挂起和唤醒需要消耗CPU, 而且代价颇大</span><br></pre></td></tr></table></figure>
+<ul>
+<li>TIMED_WAITING(on object monitor) 表示当前线程被挂起一段时间,说明该线程正在 执行obj.wait(int time)方法.</li>
+<li>TIMED_WAITING(sleeping) 表示当前线程被挂起一段时间,即正在执行Thread.sleep(int time)方法. </li>
+<li>TIMED_WAITING(parking) 当前线程被挂起一段时间,即正在执行Thread.sleep(int time)方法.</li>
+<li>WAINTING(on object monitor) 当前线程被挂起，即正在执行obj.wait()方法(无参数的wait()方法).<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">处于TIMED_WAITING、WAINTING状态的线程一定不消耗CPU. 处于RUNNABLE的线程，要结合当前线程代码的性质判断，是否消耗CPU.</span><br><span class="line">• 如果是纯Java运算代码，则消耗CPU.</span><br><span class="line">• 如果是网络IO,很少消耗CPU.</span><br><span class="line">• 如果是本地代码，结合本地代码的性质判断(可以通过pstack/gstack获取本地线程堆栈)， 如果是纯运算代码，则消耗CPU, 如果被挂起，则不消耗CPU,如果是IO,则不怎么消 耗CPU。</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="三、相关的排查方法"><a href="#三、相关的排查方法" class="headerlink" title="三、相关的排查方法"></a>三、相关的排查方法</h1><h2 id="1-CPU"><a href="#1-CPU" class="headerlink" title="1.CPU"></a>1.CPU</h2><p>生产环境中往往会出现CPU飙高的情况，对于JAVA应用而言，此类问题相对较好确定问题方向。</p>
+<h3 id="1-1-使用jstack确定CPU占用高的线程"><a href="#1-1-使用jstack确定CPU占用高的线程" class="headerlink" title="1.1 使用jstack确定CPU占用高的线程\"></a>1.1 使用jstack确定CPU占用高的线程\</h3><p>通过<code>top</code>指令，可以看到进程占用的一些基础资源信息，然后“P”键可以按照CPU使用率进行排序，“M”键可以按照内存占用情况进行排序</p>
+<p>找到CPU占用高的进程pid，然后将jstack信息定向到一个文件中去，通过<code>top -Hp pid</code>查看具体的情况。</p>
+<p>通过 <code>printf &#39;%x\n&#39; pid</code>将pid转换为16进制，然后在jstack文件中根据对应的数字进行查找，然后针对性的进行分析</p>
+<h3 id="1-2-频繁GC"><a href="#1-2-频繁GC" class="headerlink" title="1.2 频繁GC"></a>1.2 频繁GC</h3><p>有时候我们可以先确定下gc是不是太频繁，使用<code>jstat -gc pid 1000</code>命令来对gc分代变化情况进行观察，1000表示采样间隔(ms)，<code>S0C/S1C、S0U/S1U、EC/EU、OC/OU、MC/MU</code>分别代表两个Survivor区、Eden区、老年代、元数据区的容量和使用量。<code>YGC/YGT、FGC/FGCT、GCT</code>则代表YoungGc、FullGc的耗时和次数以及总耗时。如果看到gc比较频繁，再针对gc方面做进一步分析。<br><img src="/../images/gc.png" alt="alt text"></p>
+<h3 id="1-3-频繁上下文切换"><a href="#1-3-频繁上下文切换" class="headerlink" title="1.3 频繁上下文切换"></a>1.3 频繁上下文切换</h3><p>针对频繁上下文问题，我们可以使用vmstat命令来进行查看<br><img src="/../images/vmstat.png" alt="alt text"><br>cs(context switch)一列则代表了上下文切换的次数。</p>
+<p>如果我们希望对特定的pid进行监控那么可以使用 <code>pidstat -w pid</code>命令，cswch和nvcswch表示自愿及非自愿切换。</p>
+<h2 id="2-内存"><a href="#2-内存" class="headerlink" title="2.内存"></a>2.内存</h2><p>对于JAVA应用，涉及到的内存问题主要包括OOM、GC问题和堆外内存。</p>
+<h3 id="2-1-OOM"><a href="#2-1-OOM" class="headerlink" title="2.1 OOM"></a>2.1 OOM</h3><p>JVM中的内存不足，OOM大致可以分为以下几种情况</p>
+<ul>
+<li><code>Exception in thread &quot;main&quot; java.lang.OutOfMemoryError: unable to create new native thread</code> 这个意思是没有足够的内存空间给线程分配java栈，基本上还是线程池代码写的有问题，比如说忘记shutdown，所以说应该首先从代码层面来寻找问题，使用jstack或者jmap。如果一切都正常，JVM方面可以通过指定Xss来减少单个thread stack的大小。另外也可以在系统层面，可以通过修改<code>/etc/security/limits.confnofile</code>和<code>nproc</code>来增大os对线程的限制</li>
+<li><code>Exception in thread &quot;main&quot; java.lang.OutOfMemoryError: Java heap space </code> 这个意思是堆的内存占用已经达到-Xmx设置的最大值，应该是最常见的OOM错误了。解决思路仍然是先应该在代码中找，怀疑存在内存泄漏，通过jstack和jmap去定位问题。如果说一切都正常，才需要通过调整Xmx的值来扩大内存。</li>
+<li><code>Caused by: java.lang.OutOfMemoryError: Meta space</code> 这个意思是元数据区的内存占用已经达到<code>XX:MaxMetaspaceSize</code>设置的最大值，排查思路和上面的一致，参数方面可以通过<code>XX:MaxPermSize</code>来进行调整</li>
+<li><code>Exception in thread &quot;main&quot; java.lang.StackOverflowError</code> 表示线程栈需要的内存大于Xss值，同样也是先进行排查，参数方面通过Xss来调整，但调整的太大可能又会引起OOM。</li>
+</ul>
+<h3 id="2-2-GC问题"><a href="#2-2-GC问题" class="headerlink" title="2.2 GC问题"></a>2.2 GC问题</h3><p>gc问题除了影响cpu也会影响内存，排查思路也是一致的。一般先使用jstat来查看分代变化情况，比如youngGC或者fullGC次数是不是太多呀；EU、OU等指标增长是不是异常等。</p>
+<p>线程的话太多而且不被及时gc也会引发oom，大部分就是之前说的<code>unable to create new native thread</code>。除了jstack细细分析dump文件外，我们一般先会看下总体线程，通过<code>pstreee -p pid |wc -l</code></p>
+<h3 id="2-3-堆外内存"><a href="#2-3-堆外内存" class="headerlink" title="2.3 堆外内存"></a>2.3 堆外内存</h3><p>JVM 的堆外内存主要包括：</p>
+<ul>
+<li>JVM 自身运行占用的空间；</li>
+<li>线程栈分配占用的系统内存；</li>
+<li>DirectByteBuffer 占用的内存；</li>
+<li>JNI 里分配的内存；</li>
+<li>Java 8 开始的元数据空间；</li>
+<li>NIO 缓存</li>
+<li>Unsafe 调用分配的内存；</li>
+<li>codecache</li>
+</ul>
+<p>冰山对象：冰山对象是指在 JVM 堆里占用的内存很小，但其实引用了一块很大的本地内存。DirectByteBuffer 和 线程都属于这类对象。</p>
+<h4 id="2-3-1NMT分析堆外内存"><a href="#2-3-1NMT分析堆外内存" class="headerlink" title="2.3.1NMT分析堆外内存"></a>2.3.1NMT分析堆外内存</h4><p>NMT（Native Memory Tracking）是 HotSpot JVM 引入的跟踪 JVM 内部使用的本地内存的一个特性，可以通过 jcmd 工具访问 NMT 数据。NMT 目前不支持跟踪第三方本地代码的内存分配和 JDK 类库。</p>
+<p>NMT 不跟踪非 JVM 代码的内存分配，本地代码里的内存泄露需要使用操作系统支持的工具来定位。</p>
+<h4 id="2-3-2-开启-NMT"><a href="#2-3-2-开启-NMT" class="headerlink" title="2.3.2 开启 NMT"></a>2.3.2 开启 NMT</h4><p>启用 NMT 会带来 5-10% 的性能损失。NMT 的内存使用率情况需要添加两个机器字 word 到 malloc 内存的 malloc 头里。NMT 内存使用率也被 NMT 跟踪。<br>启动命令： <code>-XX:NativeMemoryTracking=[off | summary | detail]</code>。</p>
+<ul>
+<li>off：NMT 默认是关闭的；</li>
+<li>summary：只收集子系统的内存使用的总计数据；</li>
+<li>detail：收集每个调用点的内存使用数据。</li>
+</ul>
+<h4 id="2-3-3-jcmd-访问-NMT-数据"><a href="#2-3-3-jcmd-访问-NMT-数据" class="headerlink" title="2.3.3 jcmd 访问 NMT 数据"></a>2.3.3 jcmd 访问 NMT 数据</h4><p>命令：<br><code>jcmd &lt;pid&gt; VM.native_memory [summary | detail | baseline | summary.diff | detail.diff | shutdown] [scale= KB | MB | GB]</code></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/08/13/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/" data-id="clzs6evof0000h2on29cp671b" data-title="JAVA问题定位" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/08/14/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          线上故障排查方法和工具介绍
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">八月 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/08/14/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/">线上故障排查方法和工具介绍</a>
+          </li>
+        
+          <li>
+            <a href="/2024/08/13/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/">JAVA问题定位</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 baixiaozhou<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
