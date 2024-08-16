@@ -16,8 +16,9 @@
 <meta property="og:image" content="http://example.com/images/top.png">
 <meta property="og:image" content="http://example.com/images/top-process.png">
 <meta property="og:image" content="http://example.com/images/stress-cpu.png">
+<meta property="og:image" content="http://example.com/images/perftop.png">
 <meta property="article:published_time" content="2024-08-14T12:01:02.522Z">
-<meta property="article:modified_time" content="2024-08-15T11:56:57.470Z">
+<meta property="article:modified_time" content="2024-08-16T04:48:12.384Z">
 <meta property="article:author" content="baixiaozhou">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/images/top.png">
@@ -119,7 +120,28 @@
 <p>这里我们需要明确一点，现在的服务器绝大部分都是多核心 CPU（1C2G这种自己用来玩的忽略），CPU 的核心数决定了我们程序在同一时间能够执行多少个线程，也就是说，这个高不高是相对于机器配置而言的。如果你的机器只有 16C，那么单个进程占用的 %CPU 到 1000，那么其实已经算是比较高了。如果是 256C 的CPU（土豪级配置），那么单个进程占用的 %CPU 到 6000，对于系统的稳定性影响就没有那么大了。</p>
 <p>上述我们说的情况是进程占用 CPU 对整个系统的影响，那么进程占用的 CPU 对系统的影响不大就代表这个程序一定没有问题吗？答案显然是未必的。</p>
 <p>我们还是要回归到业务本身，如果进程的 CPU 占用在业务变动不大的情况下，发生了异常波动，或者正常情况下业务不会消耗这么高的 CPU，那么我们就需要继续排查了。</p>
-<h3 id="如何确定CPU飙升的根源"><a href="#如何确定CPU飙升的根源" class="headerlink" title="如何确定CPU飙升的根源"></a>如何确定CPU飙升的根源</h3>
+<h3 id="如何确定CPU飙升的根源"><a href="#如何确定CPU飙升的根源" class="headerlink" title="如何确定CPU飙升的根源"></a>如何确定CPU飙升的根源</h3><p>这个问题的 核心是 CPU 上在运行什么东西。 多核心CPU 下，每个核心都可以执行不同的程序，我们如何确定一个进程中那些方法在消耗 CPU 呢？从而引申下面详细的问题:</p>
+<ol>
+<li>程序的调用栈是什么样的？</li>
+<li>调用栈信息中哪些是需要关注的，那些是可以忽略的？</li>
+<li>热点函数是什么？</li>
+</ol>
+<p>老话说得好，”工欲善其事，必先利其器”, 我们需要这些东西，就必须了解到什么样的工具可以拿到上面我提到的一些信息。接下来我将通过常用的后端语言：<code>golang</code> 和 <code>java</code> 为例构造一些高 CPU 的程序来进行展示。</p>
+<h4 id="perf命令"><a href="#perf命令" class="headerlink" title="perf命令"></a>perf命令</h4><p><strong>perf是一款Linux性能分析工具。Linux性能计数器是一个新的基于内核的子系统，它提供一个性能分析框架，比如硬件（CPU、PMU(Performance Monitoring Unit)）功能和软件(软件计数器、tracepoint)功能。</strong></p>
+<p>安装:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install perf   #Centos</span><br></pre></td></tr></table></figure>
+<p>安装完成后，我们可以首先看下 <code>perf</code>的用法，这里不展开具体用法，只列出我平常使用的几个命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">top        System profiling tool.               #对系统性能进行实时分析。</span><br><span class="line">record     Run a command and record its profile into perf.data     #收集采样信息</span><br><span class="line">report     Read perf.data (created by perf record) and display the profile  #分析采样信息，和record配合使用</span><br></pre></td></tr></table></figure>
+<p>record 和 report 的使用更多在于 dump 当前环境的信息用于后续分析，如果在自己环境上测试，可以用 top 进行一些简单的实时分析（类似于 top 命令）。</p>
+<p>还是用之前的压测工具，我们模拟一个 10 核心的 10min 的压测场景</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup ./sysstress cpu --cpu-number 10 --duration 10m &gt; /dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<p>执行这个语句，让压测程序在后台执行，然后我们通过<code>perf top</code>查看具体的情况</p>
+<p><img src="/../images/perftop.png" alt="perf top"></p>
+<p>从截图的信息中我们可以看到占用资源最多的一些方法，包括 sysstress 进程的各种方法以及底层的 <code>__vdso_clock_gettime</code>, 那再结合压测工具的代码分析下:</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">burnCpu</span><span class="params">(wg *sync.WaitGroup, start time.Time, durSec <span class="type">int64</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> wg.Done()</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		_ = <span class="number">1</span> * <span class="number">1</span></span><br><span class="line">		now := time.Now()</span><br><span class="line">		<span class="keyword">if</span> now.Sub(start) &gt; time.Duration(durSec)*time.Second &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是方法的核心，其实就是做无意义的计算，外加时间的判断，超过 duration 就结束。这样和上面的 perf top 信息就能对应起来。</p>
+<p>然后我们用 java 写一个同样的程序，再看看:</p>
+
       
     </div>
     <footer class="article-footer">
