@@ -6,12 +6,12 @@
   
   <title>线上故障排查方法和工具介绍 | 周小白的个人博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本末倒置的，过于在乎去快速抓住重点问题，而忽略了从全局去看问题。那么如果最开始不去操作各种命令，那应该干什么呢？ 看监控！！！！ 首先不要觉得这个是废话，对于很多场景来说，业务规模是不断变化的，有的时候并发超过了极限的性能，那么这种情况下都没有必要去">
+  <meta name="description" content="写在前面 CPU使用率飙升 如何让CPU使用率飙升 如何判断和发现CPU使用率飙升 如何确定CPU飙升的根源 perf命令 jstack 火焰图      写在前面在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本末倒置的，过于在乎去快速抓住重点问题，而忽略了从全局去看问题。那么如果最开始不去操">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线上故障排查方法和工具介绍">
 <meta property="og:url" content="http://example.com/2024/08/14/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/index.html">
 <meta property="og:site_name" content="周小白的个人博客">
-<meta property="og:description" content="在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本末倒置的，过于在乎去快速抓住重点问题，而忽略了从全局去看问题。那么如果最开始不去操作各种命令，那应该干什么呢？ 看监控！！！！ 首先不要觉得这个是废话，对于很多场景来说，业务规模是不断变化的，有的时候并发超过了极限的性能，那么这种情况下都没有必要去">
+<meta property="og:description" content="写在前面 CPU使用率飙升 如何让CPU使用率飙升 如何判断和发现CPU使用率飙升 如何确定CPU飙升的根源 perf命令 jstack 火焰图      写在前面在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本末倒置的，过于在乎去快速抓住重点问题，而忽略了从全局去看问题。那么如果最开始不去操">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/top.png">
 <meta property="og:image" content="http://example.com/images/top-process.png">
@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://example.com/images/javaperftop.png">
 <meta property="og:image" content="http://example.com/images/javafire.png">
 <meta property="article:published_time" content="2024-08-14T12:01:02.522Z">
-<meta property="article:modified_time" content="2024-08-16T09:10:33.131Z">
+<meta property="article:modified_time" content="2024-08-16T09:24:13.168Z">
 <meta property="article:author" content="baixiaozhou">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/images/top.png">
@@ -100,7 +100,21 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本末倒置的，过于在乎去快速抓住重点问题，而忽略了从全局去看问题。那么如果最开始不去操作各种命令，那应该干什么呢？</p>
+        <ul>
+<li><a href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2">写在前面</a></li>
+<li><a href="#cpu%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87">CPU使用率飙升</a><ul>
+<li><a href="#%E5%A6%82%E4%BD%95%E8%AE%A9cpu%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87">如何让CPU使用率飙升</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E5%92%8C%E5%8F%91%E7%8E%B0cpu%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87">如何判断和发现CPU使用率飙升</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9Acpu%E9%A3%99%E5%8D%87%E7%9A%84%E6%A0%B9%E6%BA%90">如何确定CPU飙升的根源</a><ul>
+<li><a href="#perf%E5%91%BD%E4%BB%A4">perf命令</a></li>
+<li><a href="#jstack">jstack</a></li>
+<li><a href="#%E7%81%AB%E7%84%B0%E5%9B%BE">火焰图</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本末倒置的，过于在乎去快速抓住重点问题，而忽略了从全局去看问题。那么如果最开始不去操作各种命令，那应该干什么呢？</p>
 <p><em><strong>看监控！！！！</strong></em></p>
 <p>首先不要觉得这个是废话，对于很多场景来说，业务规模是不断变化的，有的时候并发超过了极限的性能，那么这种情况下都没有必要去后台进行各种查询。举个简单的例子，假如说某套业务系统，本身只能支持 500 并发，现在实际上的量到了 2000，导致线上各种内存、CPU、负载的告警，这种情况下还有必要去后台敲<code>top</code>、<code>free</code>吗？答案当然是否定的，这种情况下，就需要考虑对业务系统进行快速的扩容等。</p>
 <p>看监控的意义在于尽可能的找到更多的性能瓶颈或者异常的点，从全局出发，对系统当前存在的问题和异常点有全面的了解。</p>
