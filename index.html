@@ -104,6 +104,11 @@
 </li>
 </ul>
 </li>
+<li><a href="#%E8%B4%9F%E8%BD%BD%E9%A3%99%E5%8D%87">负载飙升</a><ul>
+<li><a href="#%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%AE%9A%E4%B9%89%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8B%E8%B4%9F%E8%BD%BD">负载的定义以及如何查看负载</a></li>
+<li><a href="#cpu%E7%9A%84%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-vs-loadavg">CPU的使用情况 VS loadavg</a></li>
+</ul>
+</li>
 </ul>
 <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本末倒置的，过于在乎去快速抓住重点问题，而忽略了从全局去看问题。那么如果最开始不去操作各种命令，那应该干什么呢？</p>
 <p><em><strong>看监控！！！！</strong></em></p>
@@ -192,6 +197,49 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar -xzf async-profiler-3.0-linux-x64.tar.gz</span><br><span class="line">cd async-profiler-3.0-linux-x64/bin</span><br><span class="line">./asprof -d 60 pid -f /tmp/javastress.html</span><br></pre></td></tr></table></figure>
 <p>我们用浏览器打开生成的 html 文件，可以看到如下的火焰图信息（可以在网页进行点击，查看更细节的方法）<br><img src="/../images/javafire.png" alt="java 程序的火焰图"></p>
 <p>这样看起来就比 jstack这些信息更加直观一点。</p>
+<h2 id="负载飙升"><a href="#负载飙升" class="headerlink" title="负载飙升"></a>负载飙升</h2><h3 id="负载的定义以及如何查看负载"><a href="#负载的定义以及如何查看负载" class="headerlink" title="负载的定义以及如何查看负载"></a>负载的定义以及如何查看负载</h3><p>我们先看下系统负载的官方描述:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">System load averages is the average number of processes that are either in a runnable or uninterruptable state. A process in arunnable state is either using the CPU or waiting to use the CPU.  A process in uninterruptable state is waiting for some I/O access,eg waiting for disk.  The averages are taken over the three time intervals.  Load averages are not normalized for the number of CPUs ina  system,  so a load average of 1 means a single CPU system is loaded all the time while on a 4 CPU system it means it was idle 75% of the time.</span><br></pre></td></tr></table></figure>
+
+<p>系统负载平均值表示处于可运行或不可中断状态的进程的平均数量。处于可运行状态的进程要么正在使用 CPU，要么正在等待使用 CPU。处于不可中断状态的进程正在等待某些 I&#x2F;O 访问，例如等待磁盘。这里的核心概念就是 loadavg 这个数值体现了某些特定状态进程的数量。</p>
+<p>那引申出两个问题:</p>
+<ol>
+<li>进程的状态有哪些？</li>
+<li>可运行和不可中断状态的进程具体含义是什么</li>
+</ol>
+<p>首先我们看下，进程的状态和具体含义:</p>
+<ul>
+<li>D    uninterruptible sleep (usually IO)</li>
+<li>R    running or runnable (on run queue)</li>
+<li>S    interruptible sleep (waiting for an event to complete)</li>
+<li>T    stopped by job control signal</li>
+<li>t    stopped by debugger during the tracing</li>
+<li>W    paging (not valid since the 2.6.xx kernel)</li>
+<li>X    dead (should never be seen) </li>
+<li>Z    defunct (“zombie”) process, terminated but not reaped by its parent</li>
+</ul>
+<p>这里我们看到处于不可中断的状态的进程和正在运行的进程分别为 <code>D</code> 和 <code>R</code>,换个说法，也就是说造成负载升高的原因也就是这两个状态的进程引起的。</p>
+<p>（插个题外话，按照官方的说法，X 状态的进程应该是不应该被看到的， 但是之前在腾讯云做ES的时候，偶然间碰到了一次，当时还截了个图用做留念😂，但是没有捕获到具体的信息）</p>
+<p>负载的指标可以通过 <code>top</code> 以及 <code>uptime</code> 指令获取</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">23:35:00 up 1 day, 46 min,  1 user,  load average: 49.16, 18.35, 7.87</span><br></pre></td></tr></table></figure>
+<p>这里展示了 loadavg 的三个数值: 分别代表的含义是 1min、5min、15min 的系统平均负载</p>
+<h3 id="CPU的使用情况-VS-loadavg"><a href="#CPU的使用情况-VS-loadavg" class="headerlink" title="CPU的使用情况 VS loadavg"></a>CPU的使用情况 VS loadavg</h3><p>既然说正在运行的进程会引起负载的变化，那么跑一些程序，让程序不停运行，那么自然而然就能构造出持续运行的进程了。<br>我这里找了三台机器(64C)，用我的压测工具先跑一些纯 CPU 的运算，然后观察下效果：</p>
+<p>测试分为三组，测试前关闭不必要的服务和进程:</p>
+<ol>
+<li>10 并发 30min<ul>
+<li><code>nohup ./sysstress cpu --cpu-number 10 --duration 30m &gt; /dev/null 2&gt;&amp;1</code></li>
+</ul>
+</li>
+<li>30 并发 30min<ul>
+<li><code>nohup ./sysstress cpu --cpu-number 30 --duration 30m &gt; /dev/null 2&gt;&amp;1</code></li>
+</ul>
+</li>
+<li>60 并发 30min<ul>
+<li><code>nohup ./sysstress cpu --cpu-number 60 --duration 30m &gt; /dev/null 2&gt;&amp;1</code></li>
+</ul>
+</li>
+</ol>
+<p>效果如下:<br><img src="/../images/load10.png" alt="10并发负载"><br><img src="/../images/load30.png" alt="30并发负载"><br><img src="/../images/load60.png" alt="60并发负载"></p>
+<p>从上述测试过程中，我们可以发现，在纯运算这种场景下，并发的量基本上和负载是对应的。也就是说随着 CPU的使用量 上涨，负载也会不断变高。</p>
 
       
     </div>
