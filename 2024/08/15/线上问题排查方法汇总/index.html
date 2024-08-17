@@ -1,17 +1,31 @@
-<!DOCTYPE html>
-<html>
+
+<!DOCTYPE html><html lang="zh-CN">
+
 <head>
   <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1" theme-name="Stellar" theme-version="1.29.1">
   
+  <meta name="generator" content="Hexo 7.3.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
   
-  <title>线上故障排查方法和工具介绍 | 周小白的个人博客</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="写在前面 CPU使用率飙升 如何让CPU使用率飙升 如何判断和发现CPU使用率飙升 如何确定CPU飙升的根源 perf命令 jstack 火焰图     负载飙升 负载的定义以及如何查看负载 CPU的使用情况 VS loadavg    写在前面在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本">
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  
+  <title>线上故障排查方法和工具介绍 - 周小白</title>
+
+  
+    <meta name="description" content="线上故障问题的排查方法和工具介绍，包括 CPU、内存、负载、磁盘、IO、网络等">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线上故障排查方法和工具介绍">
-<meta property="og:url" content="http://example.com/2024/08/14/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/index.html">
-<meta property="og:site_name" content="周小白的个人博客">
-<meta property="og:description" content="写在前面 CPU使用率飙升 如何让CPU使用率飙升 如何判断和发现CPU使用率飙升 如何确定CPU飙升的根源 perf命令 jstack 火焰图     负载飙升 负载的定义以及如何查看负载 CPU的使用情况 VS loadavg    写在前面在很多文章中，每当提到去解决线上问题的时候，大部分的处理方式就是登录环境，哐哐各种敲命令。操作本身没什么问题，但是对于很多人而言，我觉得这种做法其实是本">
+<meta property="og:url" content="http://example.com/2024/08/15/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/index.html">
+<meta property="og:site_name" content="周小白">
+<meta property="og:description" content="线上故障问题的排查方法和工具介绍，包括 CPU、内存、负载、磁盘、IO、网络等">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/top.png">
 <meta property="og:image" content="http://example.com/images/top-process.png">
@@ -22,88 +36,75 @@
 <meta property="og:image" content="http://example.com/images/load10.png">
 <meta property="og:image" content="http://example.com/images/load30.png">
 <meta property="og:image" content="http://example.com/images/load60.png">
-<meta property="article:published_time" content="2024-08-14T12:01:02.522Z">
-<meta property="article:modified_time" content="2024-08-16T10:54:57.925Z">
+<meta property="article:published_time" content="2024-08-15T03:12:21.000Z">
+<meta property="article:modified_time" content="2024-08-17T03:19:45.663Z">
 <meta property="article:author" content="baixiaozhou">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="commands">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/images/top.png">
-  
-    <link rel="alternate" href="/atom.xml" title="周小白的个人博客" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
+<meta name="twitter:creator" content="@i1234">
   
   
   
-<link rel="stylesheet" href="/css/style.css">
+  <meta name="keywords" content="Linux,Java,Golang,commands">
+
+  <!-- feed -->
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.29.1">
 
   
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
 
   
-  
-<meta name="generator" content="Hexo 7.3.0"></head>
 
+  
+</head>
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">周小白的个人博客</a>
-      </h1>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="undefined" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">周小白</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/07/30/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/"><span class="title">JAVA问题定位</span></a><a class="item title" href="/2024/08/15/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/"><span class="title">线上故障排查方法和工具介绍</span></a></div></widget>
+</div>
+
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5/">故障排查</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-08-15T03:12:21.000Z">2024-08-15</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-08-17T03:19:45.663Z">2024-08-17</time></span></div></div></div>
+    
+    <div class="bottom only-title">
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+      <div class="text-area">
+        <h1 class="text title"><span>线上故障排查方法和工具介绍</span></h1>
         
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
       </div>
     </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-线上问题排查方法汇总" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2024/08/14/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/" class="article-date">
-  <time class="dt-published" datetime="2024-08-14T12:01:02.522Z" itemprop="datePublished">2024-08-14</time>
-</a>
     
   </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      线上故障排查方法和工具介绍
-    </h1>
-  
+  </div><article class="md-text content"><span id="more"></span>
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <ul>
+<ul>
 <li><a href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2">写在前面</a></li>
 <li><a href="#cpu%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87">CPU使用率飙升</a><ul>
 <li><a href="#%E5%A6%82%E4%BD%95%E8%AE%A9cpu%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87">如何让CPU使用率飙升</a></li>
@@ -134,12 +135,12 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./sysstress cpu --cpu-number 10 --duration 10m</span><br></pre></td></tr></table></figure>
 <p>这个就是模拟占用 10 核心的 CPU 并持续 10min，当然大家也可以用其他的压测工具，比如<code>stress-ng</code></p>
 <h3 id="如何判断和发现CPU使用率飙升"><a href="#如何判断和发现CPU使用率飙升" class="headerlink" title="如何判断和发现CPU使用率飙升"></a>如何判断和发现CPU使用率飙升</h3><p>首先我们先看一下，跟 CPU 使用率相关的有哪些指标。我们通过 <code>top</code> 命令就可以看到具体的信息</p>
-<p><img src="/../images/top.png" alt="top"><br>这些输出中有一行是 <code>%Cpu(s)</code>, 这行展示了 CPU 的整体使用情况，是一个百分比的形式，我们详细阐述下这几个字段的含义</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/top.png" alt="top"><br>这些输出中有一行是 <code>%Cpu(s)</code>, 这行展示了 CPU 的整体使用情况，是一个百分比的形式，我们详细阐述下这几个字段的含义</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">us, user    : time running un-niced user processes   未降低优先级的用户进程所占用的时间</span><br><span class="line">sy, system  : time running kernel processes          内核进程所占用的时间</span><br><span class="line">ni, nice    : time running niced user processes      降低优先级的用户进程所占用的时间</span><br><span class="line">id, idle    : time spent in the kernel idle handler  空闲的时间</span><br><span class="line">wa, IO-wait : time waiting for I/O completion        等待 I/O 操作完成所花费的时间</span><br><span class="line">hi : time spent servicing hardware interrupts        处理硬件中断所花费的时间</span><br><span class="line">si : time spent servicing software interrupts        处理软件中断所花费的时间</span><br><span class="line">st : time stolen from this vm by the hypervisor      被虚拟机管理程序从此虚拟机中窃取的时间</span><br></pre></td></tr></table></figure>
 <p>在这些指标中，一般关注的比较多的就是 us、sy、id、wa（其他几个指标很高的情况我个人目前基本上没有遇到过）</p>
-<p>上述指标反映了系统整体的 CPU 情况。而程序在操作系统中实际上是以一个个的进程存在的，那我们如何确定到占用 CPU 高的进程呢？让我们的目光从 top 的头部信息往下移动，下面就展示了详细的进程信息<br><img src="/../images/top-process.png" alt="top-process"></p>
+<p>上述指标反映了系统整体的 CPU 情况。而程序在操作系统中实际上是以一个个的进程存在的，那我们如何确定到占用 CPU 高的进程呢？让我们的目光从 top 的头部信息往下移动，下面就展示了详细的进程信息<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/top-process.png" alt="top-process"></p>
 <p>这些程序默认是按照 CPU 的使用率从高到底进行排序的，当然你也可以通过在<code>top</code>的时候输入<code>P</code>进行排序，这样我们就可以看到系统中消耗 CPU 资源的详细进程信息</p>
-<p>上面是我通过 <code>./sysstress cpu --cpu-number 10 --duration 10m</code> 压测程序跑出来的，可以看到这里的 sysstress 程序占用了 1002 的 %CPU，也就是说基本上是 10 个核心，那我们跑一个更高的，将<code>--cpu-number</code>加到 60 看看发生了什么<br><img src="/../images/stress-cpu.png" alt="stress-cpu"></p>
+<p>上面是我通过 <code>./sysstress cpu --cpu-number 10 --duration 10m</code> 压测程序跑出来的，可以看到这里的 sysstress 程序占用了 1002 的 %CPU，也就是说基本上是 10 个核心，那我们跑一个更高的，将<code>--cpu-number</code>加到 60 看看发生了什么<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/stress-cpu.png" alt="stress-cpu"></p>
 <p>我们可以看到这次%CPU打到了 6000，那很多人就好奇我日常的程序跑到多高算高呢？</p>
 <p>这里我们需要明确一点，现在的服务器绝大部分都是多核心 CPU（1C2G这种自己用来玩的忽略），CPU 的核心数决定了我们程序在同一时间能够执行多少个线程，也就是说，这个高不高是相对于机器配置而言的。如果你的机器只有 16C，那么单个进程占用的 %CPU 到 1000，那么其实已经算是比较高了。如果是 256C 的CPU（土豪级配置），那么单个进程占用的 %CPU 到 6000，对于系统的稳定性影响就没有那么大了。</p>
 <p>上述我们说的情况是进程占用 CPU 对整个系统的影响，那么进程占用的 CPU 对系统的影响不大就代表这个程序一定没有问题吗？答案显然是未必的。</p>
@@ -160,11 +161,11 @@
 <p>还是用之前的压测工具，我们模拟一个 10 核心的 10min 的压测场景</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup ./sysstress cpu --cpu-number 10 --duration 10m &gt; /dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
 <p>执行这个语句，让压测程序在后台执行，然后我们通过<code>perf top</code>查看具体的情况（可以通过-p 指定 pid）</p>
-<p><img src="/../images/perftop.png" alt="perf top"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/perftop.png" alt="perf top"></p>
 <p>从截图的信息中我们可以看到占用资源最多的一些方法，包括 sysstress 进程的各种方法(从图片中基本上就可以确定高消耗的方法在哪里)以及底层的 <code>__vdso_clock_gettime</code>, 那再结合压测工具的代码分析下:</p>
 <figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">burnCpu</span><span class="params">(wg *sync.WaitGroup, start time.Time, durSec <span class="type">int64</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> wg.Done()</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		_ = <span class="number">1</span> * <span class="number">1</span></span><br><span class="line">		now := time.Now()</span><br><span class="line">		<span class="keyword">if</span> now.Sub(start) &gt; time.Duration(durSec)*time.Second &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这是方法的核心，其实就是做无意义的计算，外加时间的判断，超过 duration 就结束。这样和上面的 perf top 信息就能对应起来。</p>
-<p>然后我们用 java 写一个同样的程序，再看看 <code>perf top</code>的情况:<br><img src="/../images/javaperftop.png" alt="perf top"><br>从这一大段显示来看，是不是看的一脸懵逼，很难发现到底是什么程序在占用CPU 资源。大家可以看一下源程序:</p>
+<p>然后我们用 java 写一个同样的程序，再看看 <code>perf top</code>的情况:<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/javaperftop.png" alt="perf top"><br>从这一大段显示来看，是不是看的一脸懵逼，很难发现到底是什么程序在占用CPU 资源。大家可以看一下源程序:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">                        Math.sin(Math.random());</span><br><span class="line">                        <span class="type">LocalDateTime</span> <span class="variable">currentTime</span> <span class="operator">=</span> LocalDateTime.now();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这里的程序也是非常简单，启动 10 个线程，做一个无意义的数学运算，然后获取当前时间。从这段代码中是不是很难和上面<code>perf top</code>的显示关联起来？ 原因也非常简单， 像Java 这种通过 JVM 来运行的应用程序，运行堆栈用的都是 JVM 内置的函数和堆栈管理。所以，从系统层面只能看到 JVM 的函数堆栈，而不能直接得到 Java 应用程序的堆栈。那我们好能通过 perf 去看到 java 相关的堆栈吗？答案是可以的。</p>
 <p>可以借助 <a target="_blank" rel="noopener" href="https://github.com/jvm-profiling-tools/perf-map-agent">perf-map-agent</a> 这样的开源工具，去生成和<code>perf</code> 工具一起使用的方法映射，但是需要做额外的一些配置。这里的方法大家可以自己探究，为什么不详细的讲这个呢，原因也简单，排查问题的工具多种多样，没必要在一棵树上吊死。</p>
@@ -207,7 +208,7 @@
 </ol>
 <p>我们这里通过 <a target="_blank" rel="noopener" href="https://github.com/async-profiler/async-profiler">async-profiler</a> 对文章上面的java压测程序进行抓取(这个工具只能抓 java 的)</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar -xzf async-profiler-3.0-linux-x64.tar.gz</span><br><span class="line">cd async-profiler-3.0-linux-x64/bin</span><br><span class="line">./asprof -d 60 pid -f /tmp/javastress.html</span><br></pre></td></tr></table></figure>
-<p>我们用浏览器打开生成的 html 文件，可以看到如下的火焰图信息（可以在网页进行点击，查看更细节的方法）<br><img src="/../images/javafire.png" alt="java 程序的火焰图"></p>
+<p>我们用浏览器打开生成的 html 文件，可以看到如下的火焰图信息（可以在网页进行点击，查看更细节的方法）<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/javafire.png" alt="java 程序的火焰图"></p>
 <p>这样看起来就比 jstack这些信息更加直观一点。</p>
 <h2 id="负载飙升"><a href="#负载飙升" class="headerlink" title="负载飙升"></a>负载飙升</h2><h3 id="负载的定义以及如何查看负载"><a href="#负载的定义以及如何查看负载" class="headerlink" title="负载的定义以及如何查看负载"></a>负载的定义以及如何查看负载</h3><p>我们先看下系统负载的官方描述:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">System load averages is the average number of processes that are either in a runnable or uninterruptable state. A process in arunnable state is either using the CPU or waiting to use the CPU.  A process in uninterruptable state is waiting for some I/O access,eg waiting for disk.  The averages are taken over the three time intervals.  Load averages are not normalized for the number of CPUs ina  system,  so a load average of 1 means a single CPU system is loaded all the time while on a 4 CPU system it means it was idle 75% of the time.</span><br></pre></td></tr></table></figure>
@@ -250,116 +251,497 @@
 </ul>
 </li>
 </ol>
-<p>效果如下:<br><img src="/../images/load10.png" alt="10并发负载"><br><img src="/../images/load30.png" alt="30并发负载"><br><img src="/../images/load60.png" alt="60并发负载"></p>
+<p>效果如下:<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/load10.png" alt="10并发负载"><br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/load30.png" alt="30并发负载"><br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../images/load60.png" alt="60并发负载"></p>
 <p>从上述测试过程中，我们可以发现，在纯运算这种场景下，并发的量基本上和负载是对应的。也就是说随着 CPU的使用量 上涨，负载也会不断变高。</p>
 
-      
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2024/08/14/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/" data-id="clzv87lva0000c3onbyvc4ecf" data-title="线上故障排查方法和工具介绍" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-  
-    <a href="/2024/08/13/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">JAVA问题定位</div>
-    </a>
-  
-</nav>
-
-  
 </article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2024/07/30/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/">JAVA问题定位</a></div></section></div>
 
 
-</section>
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">baixiaozhou</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1">Stellar 1.29.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">CPU使用率飙升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A9CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">如何让CPU使用率飙升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E5%92%8C%E5%8F%91%E7%8E%B0CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">如何判断和发现CPU使用率飙升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9ACPU%E9%A3%99%E5%8D%87%E7%9A%84%E6%A0%B9%E6%BA%90"><span class="toc-text">如何确定CPU飙升的根源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#perf%E5%91%BD%E4%BB%A4"><span class="toc-text">perf命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#jstack"><span class="toc-text">jstack</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%81%AB%E7%84%B0%E5%9B%BE"><span class="toc-text">火焰图</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E9%A3%99%E5%8D%87"><span class="toc-text">负载飙升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%AE%9A%E4%B9%89%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8B%E8%B4%9F%E8%BD%BD"><span class="toc-text">负载的定义以及如何查看负载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CPU%E7%9A%84%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-VS-loadavg"><span class="toc-text">CPU的使用情况 VS loadavg</span></a></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js`,
+    marked: `https://cdn.jsdelivr.net/npm/marked@13.0.1/lib/marked.umd.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
         
-          <aside id="sidebar">
-  
-    
-
-  
-    
-
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">八月 2024</a></li></ul>
-    </div>
-  </div>
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
 
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2024/08/14/%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%96%B9%E6%B3%95%E6%B1%87%E6%80%BB/">线上故障排查方法和工具介绍</a>
-          </li>
-        
-          <li>
-            <a href="/2024/08/13/JAVA%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D/">JAVA问题定位</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
+<!-- required -->
+<script src="/js/main.js?v=1.29.1" defer></script>
 
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2024 baixiaozhou<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
 
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
+    applyThemeToGiscus(theme)
+  }
+
+  const applyThemeToGiscus = (theme) => {
+    theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    }
+  })()
+</script>
 
 
-<script src="/js/jquery-3.6.4.min.js"></script>
+<!-- optional -->
 
 
 
-  
-<script src="/fancybox/jquery.fancybox.min.js"></script>
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
 
 
+<!-- inject -->
 
-
-<script src="/js/script.js"></script>
-
-
-
-
-
-  </div>
-</body>
-</html>
+</div></body></html>
