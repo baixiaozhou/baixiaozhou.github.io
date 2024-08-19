@@ -33,11 +33,17 @@
 <meta property="og:image" content="http://baixiaozhou.github.io/images/perftop.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/javaperftop.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/javafire.png">
+<meta property="og:image" content="http://baixiaozhou.github.io/images/psauxf.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/load10.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/load30.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/load60.png">
+<meta property="og:image" content="http://baixiaozhou.github.io/images/ioload10.png">
+<meta property="og:image" content="http://baixiaozhou.github.io/images/ioload30.png">
+<meta property="og:image" content="http://baixiaozhou.github.io/images/ioload60.png">
+<meta property="og:image" content="http://baixiaozhou.github.io/images/io60c.png">
+<meta property="og:image" content="http://baixiaozhou.github.io/images/loadhigh.png">
 <meta property="article:published_time" content="2024-08-15T03:12:21.000Z">
-<meta property="article:modified_time" content="2024-08-18T06:37:22.333Z">
+<meta property="article:modified_time" content="2024-08-19T09:12:29.361Z">
 <meta property="article:author" content="baixiaozhou">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Java">
@@ -90,7 +96,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/">问题排查</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-08-15T03:12:21.000Z">2024-08-15</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-08-18T06:37:22.333Z">2024-08-18</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-08-15T03:12:21.000Z">2024-08-15</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-08-19T09:12:29.361Z">2024-08-19</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -118,7 +124,13 @@
 </li>
 <li><a href="#%E8%B4%9F%E8%BD%BD%E9%A3%99%E5%8D%87">负载飙升</a><ul>
 <li><a href="#%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%AE%9A%E4%B9%89%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8B%E8%B4%9F%E8%BD%BD">负载的定义以及如何查看负载</a></li>
-<li><a href="#cpu%E7%9A%84%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-vs-loadavg">CPU的使用情况 VS loadavg</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E8%AE%A9%E7%B3%BB%E7%BB%9F%E8%B4%9F%E8%BD%BD%E9%A3%99%E9%AB%98">如何让系统负载飙高</a><ul>
+<li><a href="#%E7%BA%AF%E8%AE%A1%E7%AE%97%E4%BB%BB%E5%8A%A1%E5%AF%B9%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%BD%B1%E5%93%8D">纯计算任务对负载的影响</a></li>
+<li><a href="#%E7%A3%81%E7%9B%98-io-%E5%AF%B9%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%BD%B1%E5%93%8D">磁盘 IO 对负载的影响</a></li>
+<li><a href="#%E9%80%9A%E8%BF%87%E7%BD%91%E7%BB%9C-io-%E6%A8%A1%E6%8B%9F-d-%E7%8A%B6%E6%80%81%E8%BF%9B%E7%A8%8B%E8%A7%82%E5%AF%9F%E8%B4%9F%E8%BD%BD%E5%BD%B1%E5%93%8D">通过网络 IO 模拟 D 状态进程观察负载影响</a></li>
+</ul>
+</li>
+<li><a href="#%E8%B4%9F%E8%BD%BD%E9%A3%99%E5%8D%87%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5">负载飙升如何排查</a></li>
 </ul>
 </li>
 </ul>
@@ -231,10 +243,13 @@
 <p>系统负载平均值表示处于可运行或不可中断状态的进程的平均数量。处于可运行状态的进程要么正在使用 CPU，要么正在等待使用 CPU。处于不可中断状态的进程正在等待某些 I&#x2F;O 访问，例如等待磁盘。这里的核心概念就是 loadavg 这个数值体现了某些特定状态进程的数量。</p>
 <p>那引申出两个问题:</p>
 <ol>
-<li>进程的状态有哪些？</li>
+<li>进程的状态有哪些？ 如何在 Linux 上查看进程状态</li>
 <li>可运行和不可中断状态的进程具体含义是什么</li>
 </ol>
-<p>首先我们看下，进程的状态和具体含义:</p>
+<p>查看的方式，我们可以通过 ps 命令进行查看，比如通过<code>ps -auxf</code>, 我么可以看到有一列为 <code>STAT</code>,这列就代表该进程的状态:</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/psauxf.png" alt="进程状态" data-fancybox="true"/></div><div class="image-meta"><span class="image-caption center">进程状态</span></div></div>
+
+<p>进程的状态和具体含义:</p>
 <ul>
 <li>D    uninterruptible sleep (usually IO)</li>
 <li>R    running or runnable (on run queue)</li>
@@ -250,7 +265,9 @@
 <p>负载的指标可以通过 <code>top</code> 以及 <code>uptime</code> 指令获取</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">23:35:00 up 1 day, 46 min,  1 user,  load average: 49.16, 18.35, 7.87</span><br></pre></td></tr></table></figure>
 <p>这里展示了 loadavg 的三个数值: 分别代表的含义是 1min、5min、15min 的系统平均负载</p>
-<h3 id="CPU的使用情况-VS-loadavg"><a href="#CPU的使用情况-VS-loadavg" class="headerlink" title="CPU的使用情况 VS loadavg"></a>CPU的使用情况 VS loadavg</h3><p>既然说正在运行的进程会引起负载的变化，那么跑一些程序，让程序不停运行，那么自然而然就能构造出持续运行的进程了。<br>我这里找了三台机器(64C)，用我的压测工具先跑一些纯 CPU 的运算，然后观察下效果：</p>
+<p>那我们如何判断系统的负载是高是低呢？</p>
+<p>这里一般有个经验值，我们一般和 CPU 和核心数进行对比，一般负载在 CPU 核心的 70% 左右以及以下，对系统一般没什么影响，超过 70%，系统可能收到影响。但是这里还需要注意的一点就是，负载的比例在 70% 以下时不一定代表系统就没问题，举个简单的例子，如果一个系统上基本上没有业务在运行，那么负载基本上就在零点几左右，那么这种情况下，负载有升高不一定是合理的（后面举一个简单的例子）</p>
+<h3 id="如何让系统负载飙高"><a href="#如何让系统负载飙高" class="headerlink" title="如何让系统负载飙高"></a>如何让系统负载飙高</h3><h4 id="纯计算任务对负载的影响"><a href="#纯计算任务对负载的影响" class="headerlink" title="纯计算任务对负载的影响"></a>纯计算任务对负载的影响</h4><p>既然说正在运行的进程会引起负载的变化，那么跑一些程序，让程序不停运行，那么自然而然就能构造出持续运行的进程了。<br>我这里找了三台机器(64C)，用我的压测工具先跑一些纯 CPU 的运算，然后观察下效果：</p>
 <p>测试分为三组，测试前关闭不必要的服务和进程:</p>
 <ol>
 <li>10 并发 30min<ul>
@@ -275,6 +292,47 @@
 ![60并发负载](../images/load60.png) -->
 
 <p>从上述测试过程中，我们可以发现，在纯运算这种场景下，并发的量基本上和负载是对应的。也就是说随着 CPU的使用量 上涨，负载也会不断变高。</p>
+<h4 id="磁盘-IO-对负载的影响"><a href="#磁盘-IO-对负载的影响" class="headerlink" title="磁盘 IO 对负载的影响"></a>磁盘 IO 对负载的影响</h4><p>在刚才的例子中，我们看到了纯运算对负载的影响（R 进程的代表），然后在关于 D 进程的说明中，我们可以看到有一个比较明显的说明 <code>(usually IO)</code> ,即通常是 IO 引起的，那么接下来我们通过磁盘 IO 来测试一下</p>
+<p>测试分为三组，测试前关闭不必要的服务和进程:</p>
+<ol>
+<li>10 并发 15min<ul>
+<li><code>nohup ./sysstress io --operation read --filepath test.access.log -p 10 -d 15m &gt; /dev/null 2&gt;&amp;1 &amp;</code></li>
+</ul>
+</li>
+<li>30 并发 15min<ul>
+<li><code>nohup ./sysstress io --operation read --filepath test.access.log -p 30 -d 15m &gt; /dev/null 2&gt;&amp;1 &amp;</code></li>
+</ul>
+</li>
+<li>60 并发 15min<ul>
+<li><code>nohup ./sysstress io --operation read --filepath test.access.log -p 60 -d 15m &gt; /dev/null 2&gt;&amp;1 &amp;</code></li>
+</ul>
+</li>
+</ol>
+<p>效果如下:</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/ioload10.png" alt="10并发负载" data-fancybox="true"/></div><div class="image-meta"><span class="image-caption center">10并发负载</span></div></div>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/ioload30.png" alt="30并发负载" data-fancybox="true"/></div><div class="image-meta"><span class="image-caption center">30并发负载</span></div></div>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/ioload60.png" alt="60并发负载" data-fancybox="true"/></div><div class="image-meta"><span class="image-caption center">60并发负载</span></div></div>
+
+<p>我们也顺便看一下，60 并发下 CPU 的情况:</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/io60c.png" alt="60并发系统整体情况" data-fancybox="true"/></div><div class="image-meta"><span class="image-caption center">60并发系统整体情况</span></div></div>
+
+<p>这里我们可以观察到，系统的 CPU 基本上已经跑满了。us 和 sy 都占的比较多，但是这种读取非常有可能走到缓存中，我们想测绕过缓存，可以通过 DIRECT 的方式。</p>
+<p>但是上面的例子其实也证明了一件事，IO 的操作也是会导致负载产生飙升。</p>
+<p>那么问题来了，磁盘IO 和 CPU 操作都会导致系统负载飙升，那么负载飙升一定会是这两个原因吗？答案也是未必的，因为上述我们曾经提到过 D 状态的进程，到目前为止我们好像还没介绍过，那么我们来继续模拟，既然 D 状态的进程是 IO 操作引起的，普通的磁盘读写 IO 很难模拟，那我们就换个 IO 场景继续模拟 – 网络 IO。</p>
+<h4 id="通过网络-IO-模拟-D-状态进程观察负载影响"><a href="#通过网络-IO-模拟-D-状态进程观察负载影响" class="headerlink" title="通过网络 IO 模拟 D 状态进程观察负载影响"></a>通过网络 IO 模拟 D 状态进程观察负载影响</h4><p>这里直接上一个模拟方法:</p>
+<ul>
+<li>A 机器开启 NFS Server</li>
+<li>B 机器作为客户端进行挂载</li>
+<li>断开网络</li>
+<li>疯狂 df -h</li>
+</ul>
+<p>详细的操作步骤:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"># 安装 Centos</span><br><span class="line">sudo yum install nfs-utils</span><br><span class="line"></span><br><span class="line"># 服务端配置</span><br><span class="line">sudo mkdir -p /mnt/nfs_share</span><br><span class="line">sudo chown nobody:nogroup /mnt/nfs_share</span><br><span class="line">sudo chmod 755 /mnt/nfs_share</span><br><span class="line">## 打开 /etc/exports 配置，添加一行来定义共享目录及其权限。例如，将 /mnt/nfs_share 共享给网络 192.168.1.0/24，并提供读写权限：</span><br><span class="line">/mnt/nfs_share 192.168.1.0/24(rw,sync,no_subtree_check)</span><br><span class="line"></span><br><span class="line">## 启动 NFS</span><br><span class="line">sudo exportfs -a</span><br><span class="line">sudo systemctl restart nfs-kernel-server</span><br><span class="line">sudo systemctl enable nfs-kernel-server</span><br><span class="line"></span><br><span class="line"># 客户端配置</span><br><span class="line">sudo mkdir -p /mnt/nfs_client</span><br><span class="line">sudo mount -t nfs 192.168.1.100(server ip):/mnt/nfs_share /mnt/nfs_client</span><br><span class="line">## 验证</span><br><span class="line">df -h /mnt/nfs_client</span><br><span class="line"></span><br><span class="line"># 断网模拟(客户端)</span><br><span class="line">iptables -I INPUT -s serverip -j DROP</span><br><span class="line"></span><br><span class="line"># 持续(疯狂)执行：</span><br><span class="line">du -sh /mnt/nfs_client</span><br></pre></td></tr></table></figure>
+<p>因为网络已经断掉，所以<code>du -sh /mnt/nfs_client</code>,而且这个程序没有自动退出或者报错，这样就导致程序无法顺利执行下去，继而阻塞住就变成了 D 状态的进程。</p>
+<p>基于这种模拟方法大家可以自行测试下，笔者之前做过一个场景，将一个两核心的 CPU负载干到了 200 多，但是因为<strong>这种情况下更多是阻塞在网络中，所以此时的负载虽高，并不一定影响系统运行</strong>。</p>
+<p>当然这只是其中一个例子，笔者曾经也因为见过 ping 操作阻塞导致的负载飙升，所以这种场景是多种多样的😂，大家有更多的例子也可以在下方留言，共同学习进步。</p>
+<h3 id="负载飙升如何排查"><a href="#负载飙升如何排查" class="headerlink" title="负载飙升如何排查"></a>负载飙升如何排查</h3><p>基于上面的例子和场景模拟，我们其实应该已经有一套基本的排查方法了，下面这张图是我个人的一些总结(图还会不断完善)</p>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/loadhigh.png" alt="负载高排查导图" data-fancybox="true"/></div><div class="image-meta"><span class="image-caption center">负载高排查导图</span></div></div>
 
 <div class="article-footer fs14">
     <section id="references">
@@ -364,7 +422,7 @@ function show_runtime() {
 
 
 
-<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">CPU使用率飙升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A9CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">如何让CPU使用率飙升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E5%92%8C%E5%8F%91%E7%8E%B0CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">如何判断和发现CPU使用率飙升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9ACPU%E9%A3%99%E5%8D%87%E7%9A%84%E6%A0%B9%E6%BA%90"><span class="toc-text">如何确定CPU飙升的根源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#perf%E5%91%BD%E4%BB%A4"><span class="toc-text">perf命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#jstack"><span class="toc-text">jstack</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%81%AB%E7%84%B0%E5%9B%BE"><span class="toc-text">火焰图</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E9%A3%99%E5%8D%87"><span class="toc-text">负载飙升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%AE%9A%E4%B9%89%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8B%E8%B4%9F%E8%BD%BD"><span class="toc-text">负载的定义以及如何查看负载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CPU%E7%9A%84%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-VS-loadavg"><span class="toc-text">CPU的使用情况 VS loadavg</span></a></li></ol></li></ol></div><div class="widget-footer">
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">CPU使用率飙升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A9CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">如何让CPU使用率飙升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E5%92%8C%E5%8F%91%E7%8E%B0CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E9%A3%99%E5%8D%87"><span class="toc-text">如何判断和发现CPU使用率飙升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9ACPU%E9%A3%99%E5%8D%87%E7%9A%84%E6%A0%B9%E6%BA%90"><span class="toc-text">如何确定CPU飙升的根源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#perf%E5%91%BD%E4%BB%A4"><span class="toc-text">perf命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#jstack"><span class="toc-text">jstack</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%81%AB%E7%84%B0%E5%9B%BE"><span class="toc-text">火焰图</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E9%A3%99%E5%8D%87"><span class="toc-text">负载飙升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%AE%9A%E4%B9%89%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8B%E8%B4%9F%E8%BD%BD"><span class="toc-text">负载的定义以及如何查看负载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A9%E7%B3%BB%E7%BB%9F%E8%B4%9F%E8%BD%BD%E9%A3%99%E9%AB%98"><span class="toc-text">如何让系统负载飙高</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%AF%E8%AE%A1%E7%AE%97%E4%BB%BB%E5%8A%A1%E5%AF%B9%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">纯计算任务对负载的影响</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98-IO-%E5%AF%B9%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">磁盘 IO 对负载的影响</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E7%BD%91%E7%BB%9C-IO-%E6%A8%A1%E6%8B%9F-D-%E7%8A%B6%E6%80%81%E8%BF%9B%E7%A8%8B%E8%A7%82%E5%AF%9F%E8%B4%9F%E8%BD%BD%E5%BD%B1%E5%93%8D"><span class="toc-text">通过网络 IO 模拟 D 状态进程观察负载影响</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E9%A3%99%E5%8D%87%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5"><span class="toc-text">负载飙升如何排查</span></a></li></ol></li></ol></div><div class="widget-footer">
 
 <a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
 </div></aside><div class='float-panel blur'>
