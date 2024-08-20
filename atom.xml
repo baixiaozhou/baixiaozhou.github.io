@@ -6,7 +6,7 @@
   <link href="http://baixiaozhou.github.io/atom.xml" rel="self"/>
   
   <link href="http://baixiaozhou.github.io/"/>
-  <updated>2024-08-19T11:17:06.384Z</updated>
+  <updated>2024-08-20T02:28:55.404Z</updated>
   <id>http://baixiaozhou.github.io/</id>
   
   <author>
@@ -17,25 +17,25 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>ansible工具使用</title>
+    <title>ansible详细介绍</title>
     <link href="http://baixiaozhou.github.io/p/ansible%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/"/>
     <id>http://baixiaozhou.github.io/p/ansible%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/</id>
     <published>2024-08-19T11:09:34.000Z</published>
-    <updated>2024-08-19T11:17:06.384Z</updated>
+    <updated>2024-08-20T02:28:55.404Z</updated>
     
-    <content type="html"><![CDATA[<h1 id=""><a href="#" class="headerlink" title=""></a>ansible工具使用</h1><p>This article was written by baixiaozhou on 1724065774000.</p><!-- Your content starts here -->]]></content>
-    
-    
-    <summary type="html">A brief description of the content</summary>
+    <content type="html"><![CDATA[<h1 id=""><a href="#" class="headerlink" title=""></a>ansible详细介绍</h1><p>This article was written by baixiaozhou on 1724065774000.</p><!-- Your content starts here -->]]></content>
     
     
+    <summary type="html">本文将对 ansible 工具的具体使用做一个详细的介绍</summary>
     
-    <category term="Technology" scheme="http://baixiaozhou.github.io/categories/Technology/"/>
     
     
-    <category term="Programming" scheme="http://baixiaozhou.github.io/tags/Programming/"/>
+    <category term="运维工具" scheme="http://baixiaozhou.github.io/categories/%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/"/>
     
-    <category term="Hexo" scheme="http://baixiaozhou.github.io/tags/Hexo/"/>
+    
+    <category term="ansible" scheme="http://baixiaozhou.github.io/tags/ansible/"/>
+    
+    <category term="运维工具" scheme="http://baixiaozhou.github.io/tags/%E8%BF%90%E7%BB%B4%E5%B7%A5%E5%85%B7/"/>
     
   </entry>
   
