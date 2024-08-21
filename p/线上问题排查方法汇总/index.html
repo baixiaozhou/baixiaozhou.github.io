@@ -28,7 +28,7 @@
 <meta property="og:description" content="线上故障问题的排查方法和工具介绍，包括 CPU、内存、负载、磁盘、IO、网络等">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/top.png">
-<meta property="og:image" content="http://baixiaozhou.github.io/imagescess.pngcess">
+<meta property="og:image" content="http://baixiaozhou.github.io/images/top-process.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/stress-cpu.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/perftop.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/javaperftop.png">
@@ -50,7 +50,7 @@
 <meta property="og:image" content="http://baixiaozhou.github.io/images/iostat.png">
 <meta property="og:image" content="http://baixiaozhou.github.io/images/iotop.png">
 <meta property="article:published_time" content="2024-08-15T03:12:21.000Z">
-<meta property="article:modified_time" content="2024-08-21T03:15:24.498Z">
+<meta property="article:modified_time" content="2024-08-21T03:24:19.786Z">
 <meta property="article:author" content="baixiaozhou">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Java">
@@ -109,7 +109,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/">问题排查</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-08-15T03:12:21.000Z">2024-08-15</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-08-21T03:15:24.498Z">2024-08-21</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-08-15T03:12:21.000Z">2024-08-15</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-08-21T03:24:19.786Z">2024-08-21</time></span></div></div></div>
     
     <div class="bottom only-title">
       
@@ -185,7 +185,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">us, user    : time running un-niced user processes   未降低优先级的用户进程所占用的时间</span><br><span class="line">sy, system  : time running kernel processes          内核进程所占用的时间</span><br><span class="line">ni, nice    : time running niced user processes      降低优先级的用户进程所占用的时间</span><br><span class="line">id, idle    : time spent in the kernel idle handler  空闲的时间</span><br><span class="line">wa, IO-wait : time waiting for I/O completion        等待 I/O 操作完成所花费的时间</span><br><span class="line">hi : time spent servicing hardware interrupts        处理硬件中断所花费的时间</span><br><span class="line">si : time spent servicing software interrupts        处理软件中断所花费的时间</span><br><span class="line">st : time stolen from this vm by the hypervisor      被虚拟机管理程序从此虚拟机中窃取的时间</span><br></pre></td></tr></table></figure>
 <p>在这些指标中，一般关注的比较多的就是 us、sy、id、wa（其他几个指标很高的情况我个人目前基本上没有遇到过）</p>
 <p>上述指标反映了系统整体的 CPU 情况。而程序在操作系统中实际上是以一个个的进程存在的，那我们如何确定到占用 CPU 高的进程呢？让我们的目光从 top 的头部信息往下移动，下面就展示了详细的进程信息</p>
-<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/imagescess.pngcess" data-fancybox="true"/></div></div>
+<div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/top-process.png" data-fancybox="true"/></div></div>
 <!-- !cess](../imagescess.png) -->
 
 <p>这些程序默认是按照 CPU 的使用率从高到底进行排序的，当然你也可以通过在<code>top</code>的时候输入<code>P</code>进行排序，这样我们就可以看到系统中消耗 CPU 资源的详细进程信息</p>
