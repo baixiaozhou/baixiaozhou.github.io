@@ -6,7 +6,7 @@
   <link href="http://baixiaozhou.github.io/atom.xml" rel="self"/>
   
   <link href="http://baixiaozhou.github.io/"/>
-  <updated>2024-08-20T02:28:55.404Z</updated>
+  <updated>2024-08-21T11:17:13.380Z</updated>
   <id>http://baixiaozhou.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>工作随记</title>
+    <link href="http://baixiaozhou.github.io/p/%E5%B7%A5%E4%BD%9C%E9%9A%8F%E8%AE%B0/"/>
+    <id>http://baixiaozhou.github.io/p/%E5%B7%A5%E4%BD%9C%E9%9A%8F%E8%AE%B0/</id>
+    <published>2024-08-21T10:28:27.000Z</published>
+    <updated>2024-08-21T11:17:13.380Z</updated>
+    
+    <content type="html"><![CDATA[<!-- Your content starts here --><ul><li><a href="#centos-%E5%AE%89%E8%A3%85-ebpf">Centos 安装 EBPF</a></li></ul><h2 id="Centos-安装-EBPF"><a href="#Centos-安装-EBPF" class="headerlink" title="Centos 安装 EBPF"></a>Centos 安装 EBPF</h2><p>安装必要工具和依赖:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install python3 python3-pip python3-devel gcc gcc-c++ make bcc bcc-tools bcc-devel</span><br></pre></td></tr></table></figure><p>安装 BCC Python 模块</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install bcc</span><br></pre></td></tr></table></figure><p>离线安装的方式如下：</p><ol><li>下载 bcc 和 Python 模块源包<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载 bcc 的源码包</span></span><br><span class="line">wget https://github.com/iovisor/bcc/archive/refs/tags/v0.22.0.tar.gz -O bcc.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载 bcc 的 Python 模块源代码包</span></span><br><span class="line"><span class="comment"># 可以去这里 https://pypi.org/project/bcc/#files 进行查找</span></span><br><span class="line">wget https://files.pythonhosted.org/packages/38/dc/3ca34874926789f8df53f3c1d1c38e77ebf876f43760e8745316bb8bd1c0/bcc-0.1.10.tar.gz</span><br></pre></td></tr></table></figure></li><li>上传文件到离线环境上,解压并进行安装:<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">tar -xzf bcc.tar.gz</span><br><span class="line"><span class="built_in">cd</span> bcc-0.22.0  <span class="comment"># 目录名可能会有所不同</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装系统依赖（可能需要根权限）</span></span><br><span class="line"><span class="built_in">sudo</span> yum install -y gcc gcc-c++ make bpfcc-tools  <span class="comment"># CentOS/RHEL</span></span><br><span class="line"><span class="built_in">sudo</span> apt-get install -y gcc g++ make bpfcc-tools  <span class="comment"># Ubuntu/Debian</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译和安装 bcc</span></span><br><span class="line"><span class="built_in">mkdir</span> build</span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br><span class="line"><span class="built_in">sudo</span> make install</span><br></pre></td></tr></table></figure></li><li>安装 bcc Python 模块<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 解压下载的 Python 模块源代码包</span></span><br><span class="line">tar -xzf bcc-python.tar.gz</span><br><span class="line"><span class="built_in">cd</span> bcc-python  <span class="comment"># 目录名可能会有所不同</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 Python 模块</span></span><br><span class="line">pip3 install .</span><br></pre></td></tr></table></figure></li></ol>]]></content>
+    
+    
+    <summary type="html">记录工作中的一些日常操作</summary>
+    
+    
+    
+    <category term="工作随记" scheme="http://baixiaozhou.github.io/categories/%E5%B7%A5%E4%BD%9C%E9%9A%8F%E8%AE%B0/"/>
+    
+    
+    <category term="Linux" scheme="http://baixiaozhou.github.io/tags/Linux/"/>
+    
+    <category term="ebpf" scheme="http://baixiaozhou.github.io/tags/ebpf/"/>
+    
+  </entry>
   
   <entry>
     <title>ansible详细介绍</title>
