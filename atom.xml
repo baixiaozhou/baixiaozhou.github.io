@@ -6,7 +6,7 @@
   <link href="http://baixiaozhou.github.io/atom.xml" rel="self"/>
   
   <link href="http://baixiaozhou.github.io/"/>
-  <updated>2024-08-21T11:17:13.380Z</updated>
+  <updated>2024-08-30T10:41:49.602Z</updated>
   <id>http://baixiaozhou.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Pacemaker+Corosync使用简介</title>
+    <link href="http://baixiaozhou.github.io/p/Pacemaker-Corosync%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/"/>
+    <id>http://baixiaozhou.github.io/p/Pacemaker-Corosync%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/</id>
+    <published>2024-08-30T09:59:26.000Z</published>
+    <updated>2024-08-30T10:41:49.602Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>pacemaker 和 corosync是两种开源软件组件，通常结合使用以构建高可用性（HA）集群。</p><h2 id="Pacemaker"><a href="#Pacemaker" class="headerlink" title="Pacemaker"></a>Pacemaker</h2><p>Pacemaker 是一个集群资源管理器，负责管理集群中所有资源的启动、停止、迁移等操作。它通过与 Corosync 协作，确保在节点故障或服务异常时，资源能够自动在其他健康节点上接管。从这里我们就可以发现，pacemaker 的核心在于管理</p><h3 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h3><p>pacemaker 主要包括以下组件:</p><ul><li>   CIB (Cluster Information Base)：存储集群的配置信息，包括资源、约束、节点等。</li><li>   CRM (Cluster Resource Manager)：决定如何在集群中分配和管理资源。</li><li>   PEngine (Policy Engine)：根据集群状态和配置策略做出决策。</li><li>   Fencing：通过 STONITH（Shoot The Other Node In The Head）机制来隔离失效的节点，防止脑裂。</li></ul><h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><ul><li>   管理集群中的各种资源（如虚拟 IP、数据库服务、文件系统等）。</li><li>   确保服务的高可用性，在故障发生时自动切换资源到其他节点。</li></ul><h2 id="Corosync"><a href="#Corosync" class="headerlink" title="Corosync"></a>Corosync</h2><p>Corosync 是一个集群通信引擎，负责在集群节点之间提供消息传递、组成员资格管理、心跳检测等功能。它确保集群中所有节点之间的信息同步，监控节点的健康状况，并在节点故障时通知 pacemaker。</p><h3 id="组件-1"><a href="#组件-1" class="headerlink" title="组件"></a>组件</h3><ul><li>   组通信：用于确保集群中所有节点保持一致的视图。</li><li>   故障检测：通过心跳机制监控节点状态，当节点失联时，通知 Pacemaker。</li><li>   配置管理：管理集群节点的配置和成员资格。</li></ul><h3 id="使用场景-1"><a href="#使用场景-1" class="headerlink" title="使用场景"></a>使用场景</h3><ul><li>   集群中节点间的实时通信。</li><li>   监控节点的可用性，并在节点失效时做出响应。</li></ul>]]></content>
+    
+    
+    <summary type="html">Pacemaker+Corosync使用简介</summary>
+    
+    
+    
+    <category term="高可用" scheme="http://baixiaozhou.github.io/categories/%E9%AB%98%E5%8F%AF%E7%94%A8/"/>
+    
+    
+    <category term="Linux" scheme="http://baixiaozhou.github.io/tags/Linux/"/>
+    
+    <category term="Pacemaker" scheme="http://baixiaozhou.github.io/tags/Pacemaker/"/>
+    
+    <category term="Corosync" scheme="http://baixiaozhou.github.io/tags/Corosync/"/>
+    
+    <category term="高可用方案" scheme="http://baixiaozhou.github.io/tags/%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%A1%88/"/>
+    
+  </entry>
   
   <entry>
     <title>工作随记</title>
