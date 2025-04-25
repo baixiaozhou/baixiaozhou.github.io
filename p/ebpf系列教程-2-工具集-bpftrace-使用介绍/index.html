@@ -1,0 +1,1234 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1" theme-name="Stellar" theme-version="1.29.1">
+  
+  <meta name="generator" content="Hexo 7.3.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  
+  <title>ebpf系列教程(2) --工具集 bpftrace 使用介绍 - 周小白</title>
+
+  
+    <meta name="description" content="A brief description of the content">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ebpf系列教程(2) --工具集 bpftrace 使用介绍">
+<meta property="og:url" content="http://baixiaozhou.github.io/p/ebpf%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-2-%E5%B7%A5%E5%85%B7%E9%9B%86-bpftrace-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="周小白">
+<meta property="og:description" content="A brief description of the content">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://baixiaozhou.github.io/image.png">
+<meta property="og:image" content="http://baixiaozhou.github.io/image-1.png">
+<meta property="article:published_time" content="2024-11-19T08:14:59.000Z">
+<meta property="article:modified_time" content="2024-11-27T09:49:35.722Z">
+<meta property="article:author" content="baixiaozhou">
+<meta property="article:tag" content="Programming">
+<meta property="article:tag" content="Hexo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://baixiaozhou.github.io/image.png">
+  
+  
+  
+  <meta name="keywords" content="Programming,Hexo">
+
+  <!-- feed -->
+  
+    <link rel="alternate" href="/atom.xml" title="周小白" type="application/atom+xml">
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.29.1">
+
+  
+
+  
+
+  <link rel="stylesheet" href="https://cdn.staticfile.org/lxgw-wenkai-screen-webfont/1.6.0/lxgwwenkaiscreen.css" media="all"/>
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://th.bing.com/th/id/OIP.TUHfxKL1ddAue0slPX7HSQHaIJ?w=193&h=212&c=7&r=0&o=5&dpr=2&pid=1.7" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">周小白</div><div class="sub normal cap">想躺平</div><div class="sub hover cap" style="opacity:0">没什么追求的混子</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"><a class="nav-item active" title="博客" href="/" style="color:#1BCDFC"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9" clip-rule="evenodd"/><path fill="currentColor" d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z" opacity=".5"/></svg></a><a class="nav-item" title="文档" href="/wiki/" style="color:#3DC550"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M14.25 4.48v3.057c0 .111 0 .27.02.406a.936.936 0 0 0 .445.683a.96.96 0 0 0 .783.072c.13-.04.272-.108.378-.159L17 8.005l1.124.534c.106.05.248.119.378.16a.958.958 0 0 0 .783-.073a.936.936 0 0 0 .444-.683c.021-.136.021-.295.021-.406V3.031c.113-.005.224-.01.332-.013C21.154 2.98 22 3.86 22 4.933v11.21c0 1.112-.906 2.01-2.015 2.08c-.97.06-2.108.179-2.985.41c-1.082.286-1.99 1.068-3.373 1.436c-.626.167-1.324.257-1.627.323V5.174c.32-.079 1.382-.203 1.674-.371c.184-.107.377-.216.576-.323m5.478 8.338a.75.75 0 0 1-.546.91l-4 1a.75.75 0 0 1-.364-1.456l4-1a.75.75 0 0 1 .91.546" clip-rule="evenodd"/><path fill="currentColor" d="M18.25 3.151c-.62.073-1.23.18-1.75.336a8.2 8.2 0 0 0-.75.27v3.182l.75-.356l.008-.005a1.13 1.13 0 0 1 .492-.13c.047 0 .094.004.138.01c.175.029.315.1.354.12l.009.005l.749.356V3.647z"/><path fill="currentColor" d="M12 5.214c-.334-.064-1.057-.161-1.718-.339C8.938 4.515 8.05 3.765 7 3.487c-.887-.234-2.041-.352-3.018-.412C2.886 3.007 2 3.9 2 4.998v11.146c0 1.11.906 2.01 2.015 2.079c.97.06 2.108.179 2.985.41c.486.129 1.216.431 1.873.726c1.005.451 2.052.797 3.127 1.034z" opacity=".5"/><path fill="currentColor" d="M4.273 12.818a.75.75 0 0 1 .91-.545l4 1a.75.75 0 1 1-.365 1.455l-4-1a.75.75 0 0 1-.545-.91m.909-4.545a.75.75 0 1 0-.364 1.455l4 1a.75.75 0 0 0 .364-1.455z"/></svg></a><a class="nav-item" title="关于" href="/about/" style="color:#FA6400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0" opacity=".5"/><path fill="currentColor" d="M17.712 5.453c1.047-.193 2.006-.259 2.797-.152c.77.103 1.536.393 1.956 1.064c.446.714.312 1.542-.012 2.258c-.33.728-.918 1.499-1.672 2.268c-1.516 1.547-3.836 3.226-6.597 4.697c-2.763 1.472-5.495 2.484-7.694 2.92c-1.095.217-2.098.299-2.923.201c-.8-.095-1.6-.383-2.032-1.075c-.47-.752-.296-1.63.07-2.379c.375-.768 1.032-1.586 1.872-2.403L4 12.416c0 .219.083.71.168 1.146c.045.23.09.444.123.596c-.652.666-1.098 1.263-1.339 1.756c-.277.567-.208.825-.145.925c.072.116.305.305.937.38c.609.073 1.44.018 2.455-.183c2.02-.4 4.613-1.351 7.28-2.772c2.667-1.42 4.85-3.015 6.23-4.423c.694-.707 1.15-1.334 1.377-1.836c.233-.515.167-.75.107-.844c-.07-.112-.289-.294-.883-.374c-.542-.072-1.272-.041-2.163.112L16.87 5.656c.338-.101.658-.17.842-.203"/></svg></a><a class="nav-item" title="社交" href="/friends/" style="color:#F44336"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m13.629 20.472l-.542.916c-.483.816-1.69.816-2.174 0l-.542-.916c-.42-.71-.63-1.066-.968-1.262c-.338-.197-.763-.204-1.613-.219c-1.256-.021-2.043-.098-2.703-.372a5 5 0 0 1-2.706-2.706C2 14.995 2 13.83 2 11.5v-1c0-3.273 0-4.91.737-6.112a5 5 0 0 1 1.65-1.651C5.59 2 7.228 2 10.5 2h3c3.273 0 4.91 0 6.113.737a5 5 0 0 1 1.65 1.65C22 5.59 22 7.228 22 10.5v1c0 2.33 0 3.495-.38 4.413a5 5 0 0 1-2.707 2.706c-.66.274-1.447.35-2.703.372c-.85.015-1.275.022-1.613.219c-.338.196-.548.551-.968 1.262" opacity=".5"/><path fill="currentColor" d="M10.99 14.308c-1.327-.978-3.49-2.84-3.49-4.593c0-2.677 2.475-3.677 4.5-1.609c2.025-2.068 4.5-1.068 4.5 1.609c0 1.752-2.163 3.615-3.49 4.593c-.454.335-.681.502-1.01.502c-.329 0-.556-.167-1.01-.502"/></svg></a></nav>
+</div>
+<div class="widgets">
+<widget class="widget-wrapper markdown"><div class="widget-header dis-select"><span class="name">欢迎访问我的博客～期待我的博文对您有所帮助～</span></div><div class="widget-body fs14"><p>欢迎来到我的个人博客网站~<br>希望你能够在这里找到自己想要了解的东西<br>同时也欢迎读者朋友们留言探讨，指出文章不足和错误<br><span id="jinrishici-sentence">正在加载今日诗词….</span></p>
+<script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+</div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/baixiaozhou" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/git.png"/></a><a class="social" href="https://music.163.com/#/user/home?id=339946379" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/music.jpeg"/></a><a class="social" href="/comments" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/liuyanban.jpeg"/></a><a class="social" href="javaScript:void(0);" rel="noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/images/dark.jpeg"/></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/Technology/">Technology</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-11-19T08:14:59.000Z">2024-11-19</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-11-27T09:49:35.722Z">2024-11-27</time></span></div></div></div>
+    
+    <div class="bottom only-title">
+      
+      <div class="text-area">
+        <h1 class="text title"><span>ebpf系列教程(2) --工具集 bpftrace 使用介绍</span></h1>
+        
+      </div>
+    </div>
+    
+  </div>
+  </div><article class="md-text content"><h1 id=""><a href="#" class="headerlink" title=""></a>ebpf系列教程(2) --工具集 bpftrace 使用介绍</h1><p>This article was written by baixiaozhou on 1732004099000.</p>
+<!-- Your content starts here -->
+
+<p>在阅读这篇文章之前，想先问大家一个技术问题: 如果监控进程的重启操作？比如我想通过监控下 nginx 的进程是否发生了重启，是否发生了 reload 操作？对于这类问题的思路有很多，比如:</p>
+<ol>
+<li>监控进程的 pid 变化情况</li>
+<li>通过监控系统日志等来判断进程的变化情况。</li>
+<li>…</li>
+</ol>
+<p>当然我们这里不讨论这些方法的优劣。我们不妨换个新的思路设想一下，进程的启停都会在内核中进行操作，假如说我们能够捕获到内核中的进程停止操作以及进程启动操作，类似于在内核中做一个 hook，当内核执行的时候自动触发，那我们是不是就能够直接获取到呢？带着这个疑问，我们来开始展开今天的文章。</p>
+<h1 id="bpftrace-概述"><a href="#bpftrace-概述" class="headerlink" title="bpftrace 概述"></a>bpftrace 概述</h1><p>我们先看下bpftrace 官方的介绍(<a target="_blank" rel="noopener" href="https://github.com/bpftrace/bpftrace">https://github.com/bpftrace/bpftrace</a>):</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bpftrace is a high-level tracing language for Linux. bpftrace uses LLVM as a backend to compile scripts to eBPF-bytecode and makes use of libbpf and bcc for interacting with the Linux BPF subsystem, as well as existing Linux tracing capabilities: kernel dynamic tracing (kprobes), user-level dynamic tracing (uprobes), tracepoints, etc. The bpftrace language is inspired by awk, C, and predecessor tracers such as DTrace and SystemTap. </span><br></pre></td></tr></table></figure>
+<p>简单来说，bpftrace 是一个基于 eBPF（Extended Berkeley Packet Filter）的高层次性能调试和故障排查工具。它通过提供简洁的脚本语言，简化了 eBPF 程序的编写，使开发者和系统管理员能够方便地监控系统行为、分析性能问题，以及调试应用程序。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ol>
+<li>强大的动态追踪能力：<ul>
+<li>bpftrace利用eBPF技术，能够在不修改内核代码的情况下，实现对内核和应用程序的深度监控。</li>
+<li>它集成了多种Linux追踪功能，如内核动态追踪（kprobes）、用户级动态追踪（uprobes）和tracepoints等，满足不同的追踪需求。</li>
+</ul>
+</li>
+<li>高效的性能：<ul>
+<li>bpftrace使用了eBPF技术来收集和处理跟踪数据，对系统性能的影响较小。</li>
+<li>它通过LLVM作为后端编译器，将脚本编译为高效的BPF字节码，确保代码运行时的性能。</li>
+</ul>
+</li>
+<li>简洁而强大的脚本语言：<ul>
+<li>bpftrace的脚本语言设计简洁而强大，支持复杂的追踪逻辑和数据聚合。</li>
+<li>它的语言设计灵感来源于awk、C语言以及如DTrace和SystemTap等先前的追踪工具，易于理解和编写。</li>
+</ul>
+</li>
+<li>丰富的内置功能：<ul>
+<li>bpftrace内置了许多实用的功能，如定时采样、直方图统计、聚合计数、调用栈跟踪等，可以轻松处理各种常见的跟踪需求。</li>
+<li>它还支持条件过滤、聚合统计、函数调用、打印输出等操作，使得追踪和分析更加灵活和强大。</li>
+</ul>
+</li>
+<li>广泛的应用场景：<ul>
+<li>bpftrace适用于性能监控、故障诊断、安全审计、开发调试等多种场景。</li>
+<li>它可以实时监控系统调用、磁盘I&#x2F;O、网络活动等，帮助开发者快速定位性能瓶颈和故障点。</li>
+</ul>
+</li>
+<li>可扩展性：<ul>
+<li>bpftrace支持借助eBPF技术进行动态追踪和事件捕获，这意味着它可以根据需要自定义和开发更高级的跟踪功能。</li>
+</ul>
+</li>
+</ol>
+<h1 id="bpftrace-安装"><a href="#bpftrace-安装" class="headerlink" title="bpftrace 安装"></a>bpftrace 安装</h1><p>现在很多的 linux 发行版已经内置了 bpftrace 模块，在安装前可以确定下是否已经内置:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@192 ~]# bpftrace -V</span><br><span class="line">bpftrace v0.12.1</span><br></pre></td></tr></table></figure>
+<p>如果没有安装，那么需要手动安装，这里以 centos 为例进行安装,在安装前需要确定操作系统内核: 官方建议升级到 Linux4.9以及更高的内核，下面是内核版本迭代过程中增加的功能:</p>
+<ul>
+<li>4.1 - kprobes</li>
+<li>4.3 - uprobes</li>
+<li>4.6 - stack traces, count and hist builtins (use PERCPU maps for accuracy and efficiency)</li>
+<li>4.7 - tracepoints</li>
+<li>4.9 - timers&#x2F;profiling</li>
+</ul>
+<h2 id="yum-安装"><a href="#yum-安装" class="headerlink" title="yum 安装"></a>yum 安装</h2><p>根据官方提供的方法（<a target="_blank" rel="noopener" href="https://github.com/fbs/el7-bpf-specs/blob/master/README.md#repository%EF%BC%89%EF%BC%8C%E9%80%9A%E8%BF%87">https://github.com/fbs/el7-bpf-specs/blob/master/README.md#repository），通过</a> yum 进行安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl https://repos.baslab.org/rhel/7/bpftools/bpftools.repo --output /etc/yum.repos.d/bpftools.repo</span><br><span class="line">yum install bpftrace bpftrace-tools bpftrace-doc bcc-static bcc-tools</span><br></pre></td></tr></table></figure>
+<p>但是这个页面搜了下是 404 的，给的链接不靠谱。</p>
+<p>在测试的过程中，我是安装了 centos8 进行操作的，实际操作过程中使用了阿里云的 yum 源</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@192 ~]# cd /etc/yum.repos.d</span><br><span class="line">[root@192 ~]# wget https://mirrors.aliyun.com/repo/Centos-8.repo</span><br><span class="line">[root@192 ~]# yum clean all</span><br><span class="line">[root@192 ~]# yum makecache</span><br><span class="line">[root@192 ~]# yum install -y bpftrace</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h2><p>编译安装，首先 clone 下bpftrace 的代码，进行操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:bpftrace/bpftrace.git</span><br><span class="line"><span class="built_in">cd</span> bpftrace</span><br></pre></td></tr></table></figure>
+<p>进入之后，可以看到提供了编译脚本,因为 bpftrace 支持基于docker 进行编译，所以直接使用 docker 编译更为方便些，在编译前需要提前安装 docker</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y docker-ce docker-cli</span><br></pre></td></tr></table></figure>
+<p>在实际测试过程中，我是以<code>0.11.1</code>分支为基础进行编译的:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bpftrace]# git status</span><br><span class="line">头指针分离于 v0.11.1</span><br><span class="line">[root@192 bpftrace]./build.sh</span><br></pre></td></tr></table></figure>
+<p>等待编译完成后，生成的可执行程序位于<code>./build-release/src/bpftrace</code>下，查看编译后的版本情况:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bpftrace]# ./build-release/src/bpftrace -V</span><br><span class="line">bpftrace v0.11.1-dirty</span><br></pre></td></tr></table></figure>
+<p>由于编译环境操作系统的差异，编译过程中可能会遇到各种问题，大家请自行解决;不过还是建议大家通过 yum 的形式进行安装</p>
+<h1 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h1><h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><h3 id="探针-Probes"><a href="#探针-Probes" class="headerlink" title="探针 Probes"></a>探针 Probes</h3><p>探针是 bpftrace 的核心，用于定义事件触发，类似于事件的监控点，下面是bpftrace 提供的一些探针类型：<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image.png" alt="alt text"></p>
+<table>
+<thead>
+<tr>
+<th>探针类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>kprobe</strong></td>
+<td>跟踪内核函数的入口点，监视内核函数调用。例如：<code>kprobe:sys_read</code>。</td>
+</tr>
+<tr>
+<td><strong>kretprobe</strong></td>
+<td>跟踪内核函数的返回点，监视内核函数调用的返回值。例如：<code>kretprobe:sys_read</code>。</td>
+</tr>
+<tr>
+<td><strong>uprobe</strong></td>
+<td>跟踪用户空间程序的入口点，监视用户进程中的函数调用。例如：<code>uprobe:/bin/bash:readline</code>。</td>
+</tr>
+<tr>
+<td><strong>uretprobe</strong></td>
+<td>跟踪用户空间程序的返回点，监视用户进程函数的返回值。例如：<code>uretprobe:/bin/bash:readline</code>。</td>
+</tr>
+<tr>
+<td><strong>tracepoint</strong></td>
+<td>监控内核中定义的静态跟踪点，提供更稳定的接口。例如：<code>tracepoint:syscalls:sys_enter_read</code>。</td>
+</tr>
+<tr>
+<td><strong>usdt</strong></td>
+<td>跟踪用户空间定义的静态探针（User-level Statically Defined Tracing）。例如：<code>usdt:/bin/bash:probe_name</code>。</td>
+</tr>
+<tr>
+<td><strong>software</strong></td>
+<td>跟踪软件事件，如上下文切换（<code>software:context_switches</code>）。</td>
+</tr>
+<tr>
+<td><strong>hardware</strong></td>
+<td>跟踪硬件事件，如 CPU 周期或指令计数（<code>hardware:cpu_cycles</code>）。</td>
+</tr>
+<tr>
+<td><strong>profile</strong></td>
+<td>定期采样的探针，用于分析程序的性能或热点（<code>profile:hz:100</code> 每秒触发 100 次）。</td>
+</tr>
+<tr>
+<td><strong>interval</strong></td>
+<td>按固定时间间隔触发的探针，通常用于周期性报告数据（<code>interval:s:1</code> 每秒触发一次）。</td>
+</tr>
+<tr>
+<td><strong>BEGIN&#x2F;END</strong></td>
+<td>bpftrace 脚本的特殊探针：<code>BEGIN</code> 在脚本启动时触发，<code>END</code> 在脚本结束时触发。</td>
+</tr>
+</tbody></table>
+<h3 id="方法列表"><a href="#方法列表" class="headerlink" title="方法列表"></a>方法列表</h3><table>
+<thead>
+<tr>
+<th><strong>函数名</strong></th>
+<th><strong>描述</strong></th>
+<th><strong>同步&#x2F;异步&#x2F;编译时</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>bswap(uint8\16\32\64 n)</code></td>
+<td>反转字节顺序</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>buf(void *d [, int length])</code></td>
+<td>返回指针 <code>d</code> 指向的数据的十六进制格式字符串</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>cat(char *filename)</code></td>
+<td>打印文件内容</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>cgroupid(char *path)</code></td>
+<td>解析 CGroup ID</td>
+<td>编译时</td>
+</tr>
+<tr>
+<td><code>cgroup_path(int cgroupid, string filter)</code></td>
+<td>将 CGroup ID 转换为 CGroup 路径</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>exit([int code])</code></td>
+<td>退出 bpftrace，支持可选退出码</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>join(char *arr[] [, char *delim])</code></td>
+<td>打印数组</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>kaddr(char *name)</code></td>
+<td>解析内核符号名</td>
+<td>编译时</td>
+</tr>
+<tr>
+<td><code>kptr(void *p)</code></td>
+<td>将指针标记为内核空间指针</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>kstack([StackMode mode, ][int level])</code></td>
+<td>获取内核调用栈</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>ksym(void *p)</code></td>
+<td>解析内核地址</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>macaddr(char[6] addr)</code></td>
+<td>转换 MAC 地址数据</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>nsecs([TimestampMode mode])</code></td>
+<td>获取时间戳或时间差</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>ntop([int af, ]int|char[4|16] addr)</code></td>
+<td>将 IP 地址数据转换为文本</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>offsetof(struct, element)</code></td>
+<td>获取结构中元素的偏移量</td>
+<td>编译时</td>
+</tr>
+<tr>
+<td><code>override(u64 rc)</code></td>
+<td>覆盖返回值</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>path(struct path *path [, int32 size])</code></td>
+<td>返回完整路径</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>percpu_kaddr(const string name [, int cpu])</code></td>
+<td>解析 per-CPU 内核符号名</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>print(...)</code></td>
+<td>打印非 map 类型的值，使用默认格式</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>printf(char *fmt, ...)</code></td>
+<td>格式化打印</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>pton(const string *addr)</code></td>
+<td>将文本 IP 地址转换为字节数组</td>
+<td>编译时</td>
+</tr>
+<tr>
+<td><code>reg(char *name)</code></td>
+<td>返回指定寄存器中的值</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>signal(char[] signal | u32 signal)</code></td>
+<td>向当前进程发送信号</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>sizeof(...)</code></td>
+<td>返回类型或表达式的大小</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>skboutput(const string p, struct sk_buff *s, ...)</code></td>
+<td>将 <code>skb</code> 的数据部分写入 PCAP 文件</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>str(char *s [, int length])</code></td>
+<td>返回指针 <code>s</code> 指向的字符串</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>strcontains(const char *haystack, const char *needle)</code></td>
+<td>判断字符串 <code>haystack</code> 是否包含字符串 <code>needle</code></td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>strerror(uint64 error)</code></td>
+<td>根据 errno 返回错误信息</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>strftime(char *format, int nsecs)</code></td>
+<td>返回格式化的时间戳</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>strncmp(char *s1, char *s2, int length)</code></td>
+<td>比较两个字符串的前 <code>n</code> 个字符</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>system(char *fmt)</code></td>
+<td>执行 Shell 命令</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>time(char *fmt)</code></td>
+<td>打印格式化时间</td>
+<td>异步</td>
+</tr>
+<tr>
+<td><code>uaddr(char *name)</code></td>
+<td>解析用户态符号名</td>
+<td>编译时</td>
+</tr>
+<tr>
+<td><code>uptr(void *p)</code></td>
+<td>将指针标记为用户空间指针</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>ustack([StackMode mode, ][int level])</code></td>
+<td>获取用户态调用栈</td>
+<td>同步</td>
+</tr>
+<tr>
+<td><code>usym(void *p)</code></td>
+<td>解析用户空间地址</td>
+<td>异步</td>
+</tr>
+</tbody></table>
+<h3 id="内置变量"><a href="#内置变量" class="headerlink" title="内置变量"></a>内置变量</h3><p>内置变量是语言中内置的特殊变量。与暂存和映射变量不同，它们不需要 $ 或 @ 作为前缀（位置参数除外）。 “Kernel”列指示所需的最低内核版本，“BPF Helper”列指示用于此内置函数的原始 BPF 帮助器函数。</p>
+<table>
+<thead>
+<tr>
+<th><strong>变量名</strong></th>
+<th><strong>类型</strong></th>
+<th><strong>Kernel</strong></th>
+<th><strong>BPF Helper</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>$1, $2, …​$n</code></td>
+<td><code>int64</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>传递给 bpftrace 程序的第 n 个位置参数。如果传递的参数少于 n，则值为 0。对于字符串参数，使用 <code>str()</code> 调用获取值。</td>
+</tr>
+<tr>
+<td><code>$#</code></td>
+<td><code>int64</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>传递的总位置参数数量。</td>
+</tr>
+<tr>
+<td><code>arg0, arg1, …​argn</code></td>
+<td><code>int64</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>被跟踪函数的第 n 个参数。这些参数从 CPU 寄存器中提取。寄存器中传递的参数数量取决于 CPU 架构（适用于 kprobes、uprobes、usdt）。</td>
+</tr>
+<tr>
+<td><code>args</code></td>
+<td><code>struct args</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>跟踪函数的所有参数结构体。在 tracepoint、fentry、fexit 和带有 DWARF 的 uprobe 探针中可用。使用 <code>args.x</code> 访问参数 x，或使用 <code>args</code> 获取包含所有参数的结构体。</td>
+</tr>
+<tr>
+<td><code>cgroup</code></td>
+<td><code>uint64</code></td>
+<td>4.18</td>
+<td><code>get_current_cgroup_id</code></td>
+<td>当前进程所属的 cgroup ID，仅适用于 cgroupv2。</td>
+</tr>
+<tr>
+<td><code>comm</code></td>
+<td><code>string[16]</code></td>
+<td>4.2</td>
+<td><code>get_current_comm</code></td>
+<td>当前线程的名称。</td>
+</tr>
+<tr>
+<td><code>cpid</code></td>
+<td><code>uint32</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>如果使用 <code>-c</code> 选项调用 bpftrace，则为子进程 ID。</td>
+</tr>
+<tr>
+<td><code>cpu</code></td>
+<td><code>uint32</code></td>
+<td>4.1</td>
+<td><code>raw_smp_processor_id</code></td>
+<td>正在执行 BPF 程序的处理器 ID。</td>
+</tr>
+<tr>
+<td><code>curtask</code></td>
+<td><code>uint64</code></td>
+<td>4.8</td>
+<td><code>get_current_task</code></td>
+<td>指向当前任务的 <code>struct task_struct</code> 指针。</td>
+</tr>
+<tr>
+<td><code>elapsed</code></td>
+<td><code>uint64</code></td>
+<td>(见 nsec)</td>
+<td><code>ktime_get_ns / ktime_get_boot_ns</code></td>
+<td>自 bpftrace 初始化以来经过的纳秒数，基于 nsecs。</td>
+</tr>
+<tr>
+<td><code>func</code></td>
+<td><code>string</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>当前被跟踪函数的名称（适用于 kprobes 和 uprobes）。</td>
+</tr>
+<tr>
+<td><code>gid</code></td>
+<td><code>uint64</code></td>
+<td>4.2</td>
+<td><code>get_current_uid_gid</code></td>
+<td>当前线程的组 ID（以初始命名空间视角）。</td>
+</tr>
+<tr>
+<td><code>jiffies</code></td>
+<td><code>uint64</code></td>
+<td>5.9</td>
+<td><code>get_jiffies_64</code></td>
+<td>内核的 jiffies。在 32 位系统中，使用该内置变量可能较慢。</td>
+</tr>
+<tr>
+<td><code>numaid</code></td>
+<td><code>uint32</code></td>
+<td>5.8</td>
+<td><code>numa_node_id</code></td>
+<td>执行 BPF 程序的 NUMA 节点 ID。</td>
+</tr>
+<tr>
+<td><code>pid</code></td>
+<td><code>uint32</code></td>
+<td>4.2</td>
+<td><code>get_current_pid_tgid</code></td>
+<td>当前线程的进程 ID（即线程组 ID），以初始命名空间视角。</td>
+</tr>
+<tr>
+<td><code>probe</code></td>
+<td><code>string</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>当前探针的名称。</td>
+</tr>
+<tr>
+<td><code>rand</code></td>
+<td><code>uint32</code></td>
+<td>4.1</td>
+<td><code>get_prandom_u32</code></td>
+<td>随机数。</td>
+</tr>
+<tr>
+<td><code>return</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td><code>return</code> 关键字用于退出当前探针，与 <code>exit()</code> 不同，它不会退出 bpftrace。</td>
+</tr>
+<tr>
+<td><code>retval</code></td>
+<td><code>int64</code></td>
+<td>n&#x2F;a</td>
+<td>n&#x2F;a</td>
+<td>被跟踪函数的返回值（适用于 kretprobe、uretprobe、fexit）。</td>
+</tr>
+<tr>
+<td><code>tid</code></td>
+<td><code>uint32</code></td>
+<td>4.2</td>
+<td><code>get_current_pid_tgid</code></td>
+<td>当前线程的线程 ID，以初始命名空间视角。</td>
+</tr>
+<tr>
+<td><code>uid</code></td>
+<td><code>uint64</code></td>
+<td>4.2</td>
+<td><code>get_current_uid_gid</code></td>
+<td>当前线程的用户 ID，以初始命名空间视角。</td>
+</tr>
+</tbody></table>
+<h2 id="命令帮助"><a href="#命令帮助" class="headerlink" title="命令帮助"></a>命令帮助</h2><p>在使用前，我们先查看下 bpftrace 命令的帮助(用 <code>man bpftrace</code> 可以看到更全的信息):</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[root@192 ~]# bpftrace -h</span><br><span class="line">USAGE:</span><br><span class="line">    bpftrace [options] filename</span><br><span class="line">    bpftrace [options] - &lt;stdin input&gt;</span><br><span class="line">    bpftrace [options] -e <span class="string">&#x27;program&#x27;</span></span><br><span class="line"></span><br><span class="line">OPTIONS:</span><br><span class="line">    -B MODE        output buffering mode (<span class="string">&#x27;full&#x27;</span>, <span class="string">&#x27;none&#x27;</span>)</span><br><span class="line">    -f FORMAT      output format (<span class="string">&#x27;text&#x27;</span>, <span class="string">&#x27;json&#x27;</span>)</span><br><span class="line">    -o file        redirect bpftrace output to file</span><br><span class="line">    -d             debug info dry run</span><br><span class="line">    -<span class="built_in">dd</span>            verbose debug info dry run</span><br><span class="line">    -e <span class="string">&#x27;program&#x27;</span>   execute this program</span><br><span class="line">    -h, --<span class="built_in">help</span>     show this <span class="built_in">help</span> message</span><br><span class="line">    -I DIR         add the directory to the include search path</span><br><span class="line">    --include FILE add an <span class="comment">#include file before preprocessing</span></span><br><span class="line">    -l [search]    list probes</span><br><span class="line">    -p PID         <span class="built_in">enable</span> USDT probes on PID</span><br><span class="line">    -c <span class="string">&#x27;CMD&#x27;</span>       run CMD and <span class="built_in">enable</span> USDT probes on resulting process</span><br><span class="line">    --usdt-file-activation</span><br><span class="line">                   activate usdt semaphores based on file path</span><br><span class="line">    --unsafe       allow unsafe <span class="built_in">builtin</span> <span class="built_in">functions</span></span><br><span class="line">    -q             keep messages quiet</span><br><span class="line">    -v             verbose messages</span><br><span class="line">    --info         Print information about kernel BPF support</span><br><span class="line">    -k             emit a warning when a bpf helper returns an error (except <span class="built_in">read</span> <span class="built_in">functions</span>)</span><br><span class="line">    -kk            check all bpf helper <span class="built_in">functions</span></span><br><span class="line">    -V, --version  bpftrace version</span><br><span class="line">    --no-warnings  <span class="built_in">disable</span> all warning messages</span><br></pre></td></tr></table></figure>
+<p>部分参数说明:</p>
+<ol>
+<li>-B MODE 设置标准输出的缓冲模式:</li>
+</ol>
+<ul>
+<li>none:无缓冲，每个 IO 尽快写入</li>
+<li>full:一旦缓冲区已满，数据就会被写入</li>
+<li>line:数据在第一个换行符处或缓冲区已满时写入。line是默认的缓冲模式</li>
+</ul>
+<ol start="2">
+<li>-c COMMAND: 作为子进程运行 COMMAND。当子进程终止时，bpftrace 也将会终止，就像调用了“exit()”一样。如果 bpftrace 在子进程之前终止，则子进程将通过 SIGTERM 终止。</li>
+<li>-e PROGRAM: 执行 PROGRAM</li>
+<li>-l:列出所有探针<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@192 ~]# bpftrace -l | grep  tracepoint:raw_syscalls:*</span><br><span class="line">tracepoint:raw_syscalls:sys_enter</span><br><span class="line">tracepoint:raw_syscalls:sys_exit</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p>其基础语法如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">probe[,probe,...] /filter/ &#123; action &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>探针指定要检测的事件类型，bpftrace 定义了多种类型的探针；</li>
+<li>过滤器是可选的，可以根据布尔表达式进行过滤，</li>
+<li>action 是运行的程序</li>
+</ul>
+<p>我们先以<code>hello world</code>做一个入门的示例:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@192 ~]# bpftrace -e &#x27;BEGIN &#123; printf(&quot;Hello Bpftrace!\n&quot;);&#125;&#x27;</span><br><span class="line">Attaching 1 probe...</span><br><span class="line">Hello Bpftrace!</span><br></pre></td></tr></table></figure>
+<p>这里的探针probe 类型是 <code>BEGIN</code>,即在 bpftrace 脚本启动时，BEGIN 探针通过<code>printf</code>函数输出<code>Hello Bpftrace!</code></p>
+<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><p>我们再上一个例子,使用 kretprobe 来检测docker进程 sys_read 函数的返回，这里我们要筛选出 docker 进程，就可以使用过滤器进行过滤,在知道进程号的情况下，可以直接使用 <code>pid==</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bpftrace]# bpftrace -e <span class="string">&#x27;kretprobe:vfs_read /pid == 41981/ &#123; @bytes = hist(retval); &#125;&#x27;</span></span><br><span class="line">Attaching 1 probe...</span><br><span class="line">^C</span><br><span class="line">@bytes:</span><br><span class="line">[1]                  329 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|</span><br></pre></td></tr></table></figure>
+<ul>
+<li>这里的<code>kretprobe</code>是内核探针，会在内核函数<code>vfs_read</code>返回时触发，捕获返回值。</li>
+<li><code>pid == 41981</code>条件过滤器，只处理该进程的返回</li>
+<li><code>@bytes = hist(retval);</code>:@bytes 是一个 bpftrace 的全局变量（名称可以自行定义），类型为直方图（hist）;hist(retval) 将记录函数 vfs_read 返回值（retval）的分布情况;retval 是 vfs_read 函数返回的值，即读取到的字节数。</li>
+</ul>
+<p>这里完整的执行逻辑是:</p>
+<ol>
+<li>当内核函数 vfs_read 被调用并完成返回时: kretprobe:vfs_read 会触发探针并且捕获到函数的返回值</li>
+<li>如果触发探针的进程 pid 是 41981，将返回值添加到 @bytes 的直方图中，直方图会记录返回值的分布情况（即不同大小的读取字节数）。</li>
+<li>如果进程 id 不是 41981，则直接跳过</li>
+</ol>
+<p>当然，我们也可以直接通过进程名称的形式去过滤:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bpftrace -e <span class="string">&#x27;kretprobe:vfs_read /comm == &quot;dockerd&quot; / &#123; @bytestest = hist(retval); printf(&quot;pid:%d, comm:%s\n&quot;, pid, comm); &#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><p>bpftrace 支持以下运算符:</p>
+<ol>
+<li>算数运算符:<code>+, -, *, /, %</code></li>
+<li>逻辑运算符:<code>&amp;&amp;,||,!</code></li>
+<li>按位运算符:<code>&amp;,|,^,&lt;&lt;,&gt;&gt;</code></li>
+<li>关系运算符:<code>&lt;,&lt;=,&gt;,&gt;=,==,!=</code></li>
+<li>赋值运算符:<code>=,&lt;&lt;=,&gt;&gt;=,+=,-=,*=,/=,%=,&amp;=,|=,^=</code></li>
+</ol>
+<p>再次基于上述的案例进行一下操作:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bpftrace]#  bpftrace -e <span class="string">&#x27;kretprobe:vfs_read /comm == &quot;/usr/bin/dockerd&quot; &amp;&amp; comm != &quot;sshd&quot; / &#123; @bytestest = hist(retval); printf(&quot;pid:%d, comm:%s\n&quot;, pid, comm); &#125;&#x27;</span></span><br><span class="line">Attaching 1 probe...</span><br><span class="line">pid:41981, <span class="built_in">comm</span>:dockerd</span><br><span class="line">pid:41981, <span class="built_in">comm</span>:dockerd</span><br><span class="line">pid:1114, <span class="built_in">comm</span>:<span class="keyword">in</span>:imjournal</span><br><span class="line">pid:39225, <span class="built_in">comm</span>:containerd</span><br><span class="line">pid:1114, <span class="built_in">comm</span>:<span class="keyword">in</span>:imjournal</span><br></pre></td></tr></table></figure>
+
+<h3 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h3><p>在 bpftrace 中，结构体主要用于访问特定内核事件（如 tracepoints 或 uprobes）中提供的复杂数据类型。<strong>结构体</strong>是 BPF 内核事件的一个核心概念，它允许用户访问和解析事件中嵌套的字段。bpftrace 自动解析许多内核提供的结构体字段，尤其是在支持 BTF（BPF Type Format）时。在使用过程中，可以使用 -&gt; 运算符访问指向结构的指针的字段。</p>
+<p>访问字段的语法:<code>args-&gt;field_name</code>,其中:</p>
+<ul>
+<li>args：bpftrace 自动提供的结构体指针（如 tracepoints 和 usdt 中的 args）。</li>
+<li>field_name：结构体中的字段名称。</li>
+</ul>
+<p>比如说想监控一下文件系统的 open 事件并且打印文件名，进程号等,涉及到的探针是<code>tracepoint:syscalls:sys_enter_openat</code>,我们首先看下这个探针的详细类型:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bpftrace]# bpftrace -lv tracepoint:syscalls:sys_enter_openat</span><br><span class="line">tracepoint:syscalls:sys_enter_openat</span><br><span class="line">    int __syscall_nr</span><br><span class="line">    int dfd</span><br><span class="line">    const char * filename</span><br><span class="line">    int flags</span><br><span class="line">    umode_t mode</span><br></pre></td></tr></table></figure>
+<p>可以看到相关的结构体信息，其中包含了 filename,假如说监控打开了 build.sh的进程信息:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bpftrace]# bpftrace -e <span class="string">&#x27;tracepoint:syscalls:sys_enter_openat /str(args-&gt;filename) == &quot;build.sh&quot;/ &#123; printf(&quot;File: %s, pid:%d\n&quot;, str(args-&gt;filename), pid); &#125;&#x27;</span></span><br><span class="line">Attaching 1 probe...</span><br><span class="line">File: build.sh, pid:46102</span><br><span class="line">File: build.sh, pid:46102</span><br></pre></td></tr></table></figure>
+
+<p>此外，bpftrace 还支持自定义结构体。我们后续详细展开</p>
+<h3 id="条件语句"><a href="#条件语句" class="headerlink" title="条件语句"></a>条件语句</h3><p>bpftrace 的条件语句目前只支持 if&#x2F;else 暂时不支持 else if 类型操作。通过一个例子来模拟一下,假如说我们需要查看 kill 信号的触发进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bpftrace]# bpftrace -e <span class="string">&#x27;tracepoint:syscalls:sys_enter_kill &#123; if (pid &gt; 1) &#123;printf(&quot;pid:%d\n&quot;, pid)&#125; else &#123; printf(&quot;pid is 1\n&quot;)&#125;&#125; &#x27;</span></span><br><span class="line">Attaching 1 probe...</span><br><span class="line"></span><br><span class="line">pid:1509</span><br><span class="line">pid is 1</span><br><span class="line">pid is 1</span><br></pre></td></tr></table></figure>
+<p>这里定义使用了tracepoint:syscalls:sys_enter_kill，用于在执行 kill系统调用的入口处触发,当触发的进程 &gt;1,输出<code>pid:进程号</code>，其他情况下输出<code>pid is 1</code>。</p>
+<p>当然我们也可以扩展为一个脚本，在 kill 进入时输出，在退出时也输出, bpftrace的脚本以.bt为后缀，然后通过<code>bpftrace xxx.bt</code>运行:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/usr/bin/env bpftrace</span></span><br><span class="line"></span><br><span class="line">BEGIN</span><br><span class="line">&#123;</span><br><span class="line">    printf(&quot;Tracing sys_kill... Hit Ctrl-C to end.\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">tracepoint:syscalls:sys_enter_kill</span><br><span class="line">&#123;</span><br><span class="line">    if (pid &gt; 1) &#123;</span><br><span class="line">        printf(&quot;enter kill,pid is:%d, comm is:%s\n&quot;, pid, comm)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        printf(&quot;enter kill,pid is 1, comm is:%s\n&quot;, comm)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">tracepoint:syscalls:sys_exit_kill</span><br><span class="line">&#123;</span><br><span class="line">    if (pid &gt; 1) &#123;</span><br><span class="line">        printf(&quot;exit kill,pid is:%d, comm is:%s\n&quot;, pid, comm)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        printf(&quot;exit kill,pid is 1, comm is:%s\n&quot;, comm)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="循环语句"><a href="#循环语句" class="headerlink" title="循环语句"></a>循环语句</h3><p>在 bpftrace 语句中，支持 unroll、 while 和 for 循环（while 循环在内核 5.3 版本开始进行支持，参考:<a target="_blank" rel="noopener" href="https://github.com/bpftrace/bpftrace/issues/872">https://github.com/bpftrace/bpftrace/issues/872</a>, 而 for 循环在 5.13 以及更高版本支持）</p>
+<p>unroll 是 bpftrace 提供的用于模拟循环的功能，适合静态固定次数的循环。我们先看下 unroll 的用法:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bptest]# bpftrace -e <span class="string">&#x27;                                                          BEGIN &#123;</span></span><br><span class="line"><span class="string">    unroll(10) &#123;</span></span><br><span class="line"><span class="string">        printf(&quot;pid: %d\n&quot;, pid);</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>这里做循环的 10 次输出 pid 信息。</p>
+<p>我们在看下<code>while</code>的用法，在使用 while 的时候，我们可以轻松联想到对应支持 <code>break、continue、return</code> 等。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bpftrace -e <span class="string">&#x27;i:ms:100 &#123; $i = 0; while ($i &lt;= 100) &#123; if ($i &gt; 50) &#123; break; &#125; printf(&quot;%d &quot;, $i); $i++&#125; exit(); &#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>也可以看到这里的语法<strong>支持自增</strong>等操作。</p>
+<p>for循环可用于迭代隐射中的元素:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="variable">$kv</span> : @map) &#123;</span><br><span class="line">  block;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="数组和元组"><a href="#数组和元组" class="headerlink" title="数组和元组"></a>数组和元组</h3><p>数组是一组数据的集合。我们可以直接看一个例子:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">bpftrace -e <span class="string">&#x27;</span></span><br><span class="line"><span class="string">BEGIN &#123;</span></span><br><span class="line"><span class="string">    // 使用 Map 模拟数组</span></span><br><span class="line"><span class="string">    @my_array[0] = 10;</span></span><br><span class="line"><span class="string">    @my_array[1] = 20;</span></span><br><span class="line"><span class="string">    @my_array[2] = 30;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    // 打印数组元素</span></span><br><span class="line"><span class="string">    printf(&quot;Array elements: %d, %d, %d\n&quot;, @my_array[0], @my_array[1], @my_array[2]);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>元组是一种序列类型（如数组），与数组不同，每个元素可以有不同的类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@192 bptest]# bpftrace -e &#x27;</span><br><span class="line">i:s:1 &#123;</span><br><span class="line">  $a = (1,2);</span><br><span class="line">  $b = (3,4, $a);</span><br><span class="line">  print($a);</span><br><span class="line">  print($b);</span><br><span class="line">  print($b.0);</span><br><span class="line">&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>至于其他的语法规则，这里不再展开，大家自行查阅官网文档即可。</p>
+<h1 id="回到开头"><a href="#回到开头" class="headerlink" title="回到开头"></a>回到开头</h1><p>那我们现在再来回顾文章开头提到的问题，既然 bpftrace 能够跟踪到内核，那么肯定也可以跟踪到进程的启停操作，我们以<code>nginx -s reload</code>为例分析下，在 nginx 发生 reload 的时候首先会创建新的子进程,子进程创建完毕之后，会让旧进程退出。这里就需要监控到两个地方:</p>
+<ol>
+<li>fork子进程操作</li>
+<li>子进程退出操作</li>
+</ol>
+<p>bpftrace 中有 tracepoint:sched类的探针来探测这些行为，这里提供下脚本:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/env bpftrace</span></span><br><span class="line"></span><br><span class="line">BEGIN</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Tracing nginx restart or reload... Hit Ctrl-C to end.\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">tracepoint:<span class="built_in">sched</span>:sched_process_exit</span><br><span class="line">/ <span class="built_in">comm</span> == <span class="string">&quot;nginx&quot;</span> /</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;the nginx process is exit, pid is: %d, comm is:%s, prio is:%d\n&quot;</span>, pid, <span class="built_in">comm</span>, args-&gt;prio)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">tracepoint:<span class="built_in">sched</span>:sched_process_fork</span><br><span class="line">/ <span class="built_in">comm</span> == <span class="string">&quot;nginx&quot;</span> /</span><br><span class="line">&#123;</span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">&quot;the nginx process is fork, pid is:%d, comm is:%s, child pid is:%d\n&quot;</span>, pid, <span class="built_in">comm</span>, args-&gt;child_pid)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们看下效果:<br><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/image-1.png" alt="alt text"><br>从图中可以清晰的看到了 reload 操作被成功地捕获。</p>
+<p>这篇文章中，大概展示了下 bpftrace 的相关概念和语法以及基本的操作，而在实际监控场景中，监控的指标多种多样，后续会通过一些典型场景来看看如果使用 bpftrace 进行监控。</p>
+<h1 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h1><p>码字不易，希望文章对各位读者朋友们有所帮助和启发，文章的撰写有的时候是根据自己的经验和遇到的一些场景所思考的，存在不足和错误的地方，希望读者朋友们指正。转载请声明来源</p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    
+    <section id="share">
+      <div class="header"><span>分享文章</span></div>
+      <div class="body">
+        <div class="link"><input class="copy-area" readonly="true" id="copy-link" value="http://baixiaozhou.github.io/p/ebpf%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-2-%E5%B7%A5%E5%85%B7%E9%9B%86-bpftrace-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/" /></div>
+        <div class="social-wrap dis-select"><a class="social share-item wechat" onclick="util.toggle(&quot;qrcode-wechat&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/b32ef3da1162a.svg" /></a><a class="social share-item weibo" target="_blank" rel="external nofollow noopener noreferrer" href="https://service.weibo.com/share/share.php?url=http://baixiaozhou.github.io/p/ebpf%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-2-%E5%B7%A5%E5%85%B7%E9%9B%86-bpftrace-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/&title=ebpf系列教程(2) --工具集 bpftrace 使用介绍 - 周小白&summary=A brief description of the content"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/80c07e4dbb303.svg" /></a><a class="social share-item email" href="mailto:?subject=ebpf系列教程(2) --工具集 bpftrace 使用介绍 - 周小白&amp;body=http://baixiaozhou.github.io/p/ebpf%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-2-%E5%B7%A5%E5%85%B7%E9%9B%86-bpftrace-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/a1b00e20f425d.svg" /></a><a class="social share-item link" onclick="util.copy(&quot;copy-link&quot;, &quot;复制成功&quot;)"><img class="lazy"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/8411ed322ced6.svg" /></a></div>
+        
+        <div class="qrcode" id="qrcode-wechat" style="opacity:0;height:0">
+          <img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=http://baixiaozhou.github.io/p/ebpf%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-2-%E5%B7%A5%E5%85%B7%E9%9B%86-bpftrace-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/"/>
+        </div>
+        
+      </div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/p/Prometheus%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/">Prometheus使用介绍</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/p/ebpf%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-1-%E5%88%9D%E8%AF%86-ebpf/">ebpf系列教程(1) --初识 ebpf</a></div></section></div>
+
+
+
+
+  <div class="related-wrap md-text" id="comments">
+    <section class='header cmt-title cap theme'>
+      <p>快来参与讨论吧~</p>
+
+    </section>
+    <section class='body cmt-body giscus'>
+      
+
+<svg class="loading" style="vertical-align:middle;fill:currentColor;overflow:hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg>
+
+<div id="giscus" src="https://giscus.app/client.js" data-repo="baixiaozhou/hexo-blog" data-repo-id="R_kgDOMjzpMA" data-category="Announcements" data-category-id="DIC_kwDOMjzpMM4ChvMj" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="bottom" data-theme="preferred_color_scheme" data-lang="zh-CN" crossorigin="anonymous"></div>
+
+    </section>
+  </div>
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p><span id="runtime_span"></span></p>
+<script type="text/javascript">
+function show_runtime() {
+        window.setTimeout("show_runtime()", 1000);
+        X = new Date("2024/08/13 10:00:00");
+        Y = new Date();
+        T = (Y.getTime() - X.getTime());
+        M = 24 * 60 * 60 * 1000;
+        a = T / M;
+        A = Math.floor(a);
+        b = (a - A) * 24;
+        B = Math.floor(b);
+        c = (b - B) * 60;
+        C = Math.floor((b - B) * 60);
+        D = Math.floor((c - C) * 60);
+        runtime_span.innerHTML = "⏱️本站已运行 " + A + "天" + B + "小时" + C + "分" + D + "秒"
+ }
+ show_runtime();
+ </script>
+<div class="busuanzi_container_site_pv">本站总访问量：<span id="busuanzi_value_site_pv"></span> 次</div><div class="busuanzi_container_site_uv">本站访客数：<span id="busuanzi_value_site_uv"></span> 人</div></div></footer>
+
+<!-- 在页面底部添加 Busuanzi 的 JavaScript -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+<widget class="widget-wrapper markdown"><div class="widget-header dis-select"><span class="name"><br></span></div><div class="widget-body fs14"><hr>
+<center>
+<h4 id="免责声明">免责声明</h4>
+<p>本站提供的一切软件、教程和内容信息仅限用于学习和研究目的。</p>
+<p>不得将上述内容用于商业或非法用途，否则一切后果自负。</p>
+<p>如果有侵权之处请第一时间联系站长删除。敬请谅解!</p>
+</center>
+</div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js`,
+    marked: `https://cdn.jsdelivr.net/npm/marked@13.0.1/lib/marked.umd.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
+
+
+<!-- required -->
+<script src="/js/main.js?v=1.29.1" defer></script>
+
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    applyThemeToGiscus(theme)
+  }
+
+  const applyThemeToGiscus = (theme) => {
+    theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    }
+  })()
+</script>
+
+
+<!-- optional -->
+
+  <script type="module">
+  const el = document.querySelector('#comments #giscus');
+  util.viewportLazyload(el, load_discus, false);
+
+  function load_discus() {
+    if (!el) return;
+    try {
+        el.innerHTML = '';
+      } catch (error) {
+        console.error(error);
+      }
+      const script = document.createElement('script');
+      script.async = true;
+      for (const key of Object.keys(el.attributes)) {
+        const attr = el.attributes[key];
+        if (['class', 'id'].includes(attr.name) === false) {
+          script.setAttribute(attr.name, attr.value);
+        }
+      }
+      el.appendChild(script);
+  }
+</script>
+
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
+
+<!--动态线条背景-->
+<script type="text/javascript"
+  color="220,220,220" opacity='0.7' zIndex="-2" count="200" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+</script>
